@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jdonohoo/vern-bot/go/internal/vts"
+	"github.com/jdonohoo/legal-bot/go/internal/vts"
 )
 
 // PreflightReport holds all validation results.

@@ -9,23 +9,27 @@ import (
 )
 
 type logEntry struct {
-	Time          string `json:"time"`
-	LLMRequested  string `json:"llm_requested"`
-	LLMUsed       string `json:"llm_used"`
-	ExitCode      int    `json:"exit_code"`
-	TimedOut      bool   `json:"timed_out"`
-	DurationMs    int64  `json:"duration_ms"`
-	Error         string `json:"error,omitempty"`
-	Stderr        string `json:"stderr,omitempty"`
-	OutputFile    string `json:"output_file,omitempty"`
-	OutputBytes   int    `json:"output_bytes"`
-	PromptPreview string `json:"prompt_preview"`
+	Time            string `json:"time"`
+	LLMRequested    string `json:"llm_requested"`
+	ModelRequested  string `json:"model_requested,omitempty"`
+	EffortRequested string `json:"effort_requested,omitempty"`
+	LLMUsed         string `json:"llm_used"`
+	ModelUsed       string `json:"model_used,omitempty"`
+	EffortUsed      string `json:"effort_used,omitempty"`
+	ExitCode        int    `json:"exit_code"`
+	TimedOut        bool   `json:"timed_out"`
+	DurationMs      int64  `json:"duration_ms"`
+	Error           string `json:"error,omitempty"`
+	Stderr          string `json:"stderr,omitempty"`
+	OutputFile      string `json:"output_file,omitempty"`
+	OutputBytes     int    `json:"output_bytes"`
+	PromptPreview   string `json:"prompt_preview"`
 }
 
-// logRun appends a JSONL entry to ~/.config/vern/logs/vern.log.
-// Disabled if VERN_LOG=0.
+// logRun appends a JSONL entry to ~/.config/legal-bot/logs/legal-bot.log.
+// Disabled if LEGAL_BOT_LOG=0 or legacy VERN_LOG=0.
 func logRun(opts RunOptions, llmRequested string, result *Result, runErr error, writeErr error) {
-	if os.Getenv("VERN_LOG") == "0" {
+	if os.Getenv("LEGAL_BOT_LOG") == "0" || os.Getenv("VERN_LOG") == "0" {
 		return
 	}
 
@@ -35,9 +39,11 @@ func logRun(opts RunOptions, llmRequested string, result *Result, runErr error, 
 	}
 
 	entry := logEntry{
-		Time:          time.Now().UTC().Format(time.RFC3339),
-		LLMRequested:  llmRequested,
-		PromptPreview: truncatePrompt(opts.Prompt, 200),
+		Time:            time.Now().UTC().Format(time.RFC3339),
+		LLMRequested:    llmRequested,
+		ModelRequested:  opts.Model,
+		EffortRequested: opts.Effort,
+		PromptPreview:   truncatePrompt(opts.Prompt, 200),
 	}
 
 	if opts.OutputFile != "" {
@@ -46,6 +52,8 @@ func logRun(opts RunOptions, llmRequested string, result *Result, runErr error, 
 
 	if result != nil {
 		entry.LLMUsed = result.LLMUsed
+		entry.ModelUsed = result.ModelUsed
+		entry.EffortUsed = result.EffortUsed
 		entry.ExitCode = result.ExitCode
 		entry.TimedOut = result.TimedOut
 		entry.DurationMs = result.Duration.Milliseconds()
@@ -67,7 +75,7 @@ func logRun(opts RunOptions, llmRequested string, result *Result, runErr error, 
 	}
 	data = append(data, '\n')
 
-	logPath := filepath.Join(logDir, "vern.log")
+	logPath := filepath.Join(logDir, "legal-bot.log")
 	f, fErr := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if fErr != nil {
 		return
@@ -87,8 +95,8 @@ func truncatePrompt(prompt string, max int) string {
 func configDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[vern-log] Warning: cannot determine home directory: %v\n", err)
-		return "/tmp/vern"
+		fmt.Fprintf(os.Stderr, "[legal-bot-log] Warning: cannot determine home directory: %v\n", err)
+		return "/tmp/legal-bot"
 	}
-	return filepath.Join(home, ".config", "vern")
+	return filepath.Join(home, ".config", "legal-bot")
 }

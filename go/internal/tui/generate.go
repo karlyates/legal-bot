@@ -9,7 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 
-	"github.com/jdonohoo/vern-bot/go/internal/generate"
+	"github.com/jdonohoo/legal-bot/go/internal/generate"
 )
 
 type genState int
@@ -51,16 +51,16 @@ type GenerateModel struct {
 // ModelOptions are the model options for persona generation (determines which LLM runs the persona).
 var ModelOptions = []huh.Option[string]{
 	huh.NewOption("Auto (let AI decide) (Recommended)", ""),
-	huh.NewOption("Claude Opus — deep thinker, thorough analysis", "opus"),
-	huh.NewOption("Claude Sonnet — fast and scrappy", "sonnet"),
-	huh.NewOption("Claude Haiku — brief and minimal", "haiku"),
-	huh.NewOption("Gemini 3 — 2M context window, large-scale analysis", "gemini-3"),
-	huh.NewOption("Gemini Pro — deep reasoning", "gemini-pro"),
-	huh.NewOption("Gemini Flash — speed-optimized", "gemini-flash"),
-	huh.NewOption("Codex — raw computational power", "codex"),
-	huh.NewOption("Codex Mini — lighter and faster", "codex-mini"),
-	huh.NewOption("Copilot — code-focused assistance", "copilot"),
-	huh.NewOption("Copilot GPT-4 — GPT-4 backbone", "copilot-gpt4"),
+	huh.NewOption("Claude Opus - deep thinker, thorough analysis", "opus"),
+	huh.NewOption("Claude Sonnet - fast and scrappy", "sonnet"),
+	huh.NewOption("Claude Haiku - brief and minimal", "haiku"),
+	huh.NewOption("Gemini 3 - 2M context window, large-scale analysis", "gemini-3"),
+	huh.NewOption("Gemini Pro - deep reasoning", "gemini-pro"),
+	huh.NewOption("Gemini Flash - speed-optimized", "gemini-flash"),
+	huh.NewOption("Codex - raw computational power", "codex"),
+	huh.NewOption("Codex Mini - lighter and faster", "codex-mini"),
+	huh.NewOption("Copilot - code-focused assistance", "copilot"),
+	huh.NewOption("Copilot GPT-4 - GPT-4 backbone", "copilot-gpt4"),
 }
 
 // ColorOptions are the color choices for persona TUI display.

@@ -15,8 +15,8 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/jdonohoo/vern-bot/go/internal/config"
-	"github.com/jdonohoo/vern-bot/go/internal/pipeline"
+	"github.com/jdonohoo/legal-bot/go/internal/config"
+	"github.com/jdonohoo/legal-bot/go/internal/pipeline"
 )
 
 type holeState int
@@ -373,7 +373,7 @@ func (m HoleModel) confirmSummary() string {
 	b.WriteString(fmt.Sprintf("  %s  %s\n", label("Prompt:"), dim(idea)))
 
 	// Horizontal rule
-	b.WriteString("\n  " + lipgloss.NewStyle().Foreground(colorMuted).Render(strings.Repeat("─", 40)) + "\n\n")
+	b.WriteString("\n  " + lipgloss.NewStyle().Foreground(colorMuted).Render(strings.Repeat("-", 40)) + "\n\n")
 
 	// Config section
 	b.WriteString(fmt.Sprintf("  %s   %s\n", label("Council:"), val(councilLabel(v.council))))

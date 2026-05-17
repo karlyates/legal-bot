@@ -15,8 +15,8 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/jdonohoo/vern-bot/go/internal/config"
-	"github.com/jdonohoo/vern-bot/go/internal/pipeline"
+	"github.com/jdonohoo/legal-bot/go/internal/config"
+	"github.com/jdonohoo/legal-bot/go/internal/pipeline"
 )
 
 // vernStatus tracks an individual Vern's async state in the VernHole phase.
@@ -88,7 +88,7 @@ type DiscoveryModel struct {
 	// Execution state
 	running               bool
 	stepLog               []string
-	pipelineSteps         []string // step definitions captured from "[step] N. Name → llm"
+	pipelineSteps         []string // step definitions captured from "[step] N. Name - llm"
 	stepsCompleted        int
 	totalSteps            int
 	historianPhase        string // "pending", "running", "done", "failed", "skipped"
@@ -99,11 +99,11 @@ type DiscoveryModel struct {
 	err                   error
 	setupErr              error
 
-	// Phase tracking — screen redraws per phase
+	// Phase tracking - screen redraws per phase
 	runningPhase  string // "pipeline", "vernhole", "oracle"
 	phaseLogStart int    // index into stepLog where current phase started
 
-	// VernHole phase tracking (async — all Verns run in parallel)
+	// VernHole phase tracking (async - all Verns run in parallel)
 	vernRoster     map[int]*vernStatus // keyed by Vern number (1-based)
 	vernsCompleted int
 	totalVerns     int
@@ -503,7 +503,7 @@ func (m DiscoveryModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.runningPhase = "vernhole"
 			m.phaseLogStart = len(m.stepLog)
 		} else if strings.Contains(upper, "CONSULTING THE ORACLE") {
-			// VernHole just finished — fire ephemeral celebration
+			// VernHole just finished - fire ephemeral celebration
 			m.celebration.StartEphemeral("vernhole", m.width)
 			m.runningPhase = "oracle"
 			m.phaseLogStart = len(m.stepLog)
@@ -542,7 +542,7 @@ func (m DiscoveryModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		// VernHole phase: track Vern personas (async — all run in parallel)
+		// VernHole phase: track Vern personas (async - all run in parallel)
 		if m.runningPhase == "vernhole" {
 			if strings.HasPrefix(line, ">>> Vern ") {
 				// Parse ">>> Vern N/Total: Description (llm)"
@@ -609,7 +609,7 @@ func (m DiscoveryModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case discStateProjectSelect:
 		if m.projectForm == nil {
-			// No projects found — esc goes back
+			// No projects found - esc goes back
 			if keyMsg, ok := msg.(tea.KeyMsg); ok {
 				if keyMsg.String() == "esc" || keyMsg.String() == "enter" {
 					return m, backToMenu
@@ -892,7 +892,7 @@ func (m DiscoveryModel) confirmSummary() string {
 	b.WriteString(fmt.Sprintf("  %s  %s\n", label("Output:"), dim(m.discoveryDir())))
 
 	// Horizontal rule
-	b.WriteString("\n  " + lipgloss.NewStyle().Foreground(colorMuted).Render(strings.Repeat("─", 40)) + "\n\n")
+	b.WriteString("\n  " + lipgloss.NewStyle().Foreground(colorMuted).Render(strings.Repeat("-", 40)) + "\n\n")
 
 	// Config section
 	mode := "Default (5-step)"
@@ -1019,13 +1019,13 @@ func (m DiscoveryModel) renderStepOutlinePanel(width, height int) string {
 		historianLabel := "Historian (pre-step)"
 		switch m.historianPhase {
 		case "done":
-			b.WriteString(stepOKStyle.Render("✓ "+historianLabel) + "\n")
+			b.WriteString(stepOKStyle.Render("OK "+historianLabel) + "\n")
 		case "running":
 			b.WriteString(m.spinner.View() + " " + llmStyle.Render(historianLabel) + "\n")
 		case "failed":
-			b.WriteString(stepFailStyle.Render("✗ "+historianLabel+" (failed)") + "\n")
+			b.WriteString(stepFailStyle.Render("X "+historianLabel+" (failed)") + "\n")
 		default:
-			b.WriteString(logDimStyle.Render("· "+historianLabel) + "\n")
+			b.WriteString(logDimStyle.Render("- "+historianLabel) + "\n")
 		}
 	}
 
@@ -1033,12 +1033,12 @@ func (m DiscoveryModel) renderStepOutlinePanel(width, height int) string {
 	for i, stepLine := range m.pipelineSteps {
 		stepNum := i + 1
 		if stepNum <= m.completedPipelineStep {
-			b.WriteString(stepOKStyle.Render("✓ "+stepLine) + "\n")
+			b.WriteString(stepOKStyle.Render("OK "+stepLine) + "\n")
 		} else if stepNum == m.currentStep {
 			style := stepColors[(stepNum-1)%len(stepColors)]
 			b.WriteString(m.spinner.View() + " " + style.Render(stepLine) + "\n")
 		} else {
-			b.WriteString(logDimStyle.Render("· "+stepLine) + "\n")
+			b.WriteString(logDimStyle.Render("- "+stepLine) + "\n")
 		}
 	}
 
@@ -1068,10 +1068,10 @@ func (m DiscoveryModel) renderVernOutlinePanel(width, height int) string {
 		label := fmt.Sprintf("%s (%s)", vs.desc, vs.llm)
 		switch vs.status {
 		case "ok":
-			b.WriteString(stepOKStyle.Render("✓ "+label) + "\n")
+			b.WriteString(stepOKStyle.Render("OK "+label) + "\n")
 		case "failed":
-			b.WriteString(stepFailStyle.Render("✗ "+label) + "\n")
-		default: // "summoned" — running in parallel
+			b.WriteString(stepFailStyle.Render("X "+label) + "\n")
+		default: // "summoned" - running in parallel
 			b.WriteString(logDimStyle.Render(m.spinner.View()+" "+label) + "\n")
 		}
 	}
@@ -1090,17 +1090,17 @@ func (m DiscoveryModel) renderOracleOutlinePanel(width, height int) string {
 
 	switch m.oracleStep {
 	case "apply":
-		b.WriteString(stepOKStyle.Render("✓ "+consultLabel) + "\n")
+		b.WriteString(stepOKStyle.Render("OK "+consultLabel) + "\n")
 		b.WriteString(m.spinner.View() + " " + llmStyle.Render(applyLabel) + "\n")
 	case "consult":
 		b.WriteString(m.spinner.View() + " " + llmStyle.Render(consultLabel) + "\n")
 		if m.vals.oracleApply == "apply" {
-			b.WriteString(logDimStyle.Render("· "+applyLabel) + "\n")
+			b.WriteString(logDimStyle.Render("- "+applyLabel) + "\n")
 		}
 	default:
-		b.WriteString(logDimStyle.Render("· "+consultLabel) + "\n")
+		b.WriteString(logDimStyle.Render("- "+consultLabel) + "\n")
 		if m.vals.oracleApply == "apply" {
-			b.WriteString(logDimStyle.Render("· "+applyLabel) + "\n")
+			b.WriteString(logDimStyle.Render("- "+applyLabel) + "\n")
 		}
 	}
 
@@ -1269,7 +1269,7 @@ func (m DiscoveryModel) View() string {
 			label("Pipeline:"), llmStyle.Render(mode),
 			label("LLM:"), llmStyle.Render(m.vals.llmMode),
 			label("Output:"), logDimStyle.Render(m.discoveryDir())))
-		b.WriteString("  " + logDimStyle.Render(strings.Repeat("─", 50)) + "\n")
+		b.WriteString("  " + logDimStyle.Render(strings.Repeat("-", 50)) + "\n")
 
 		// Ephemeral celebration (inline during running)
 		if cv := m.celebration.View(); cv != "" {
@@ -1304,7 +1304,7 @@ func (m DiscoveryModel) View() string {
 
 			b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, left, right))
 		} else {
-			// Narrow terminal: single column — just activity log
+			// Narrow terminal: single column - just activity log
 			maxLines := totalAvail
 			if maxLines < 4 {
 				maxLines = 4

@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jdonohoo/vern-bot/go/internal/config"
-	"github.com/jdonohoo/vern-bot/go/internal/llm"
-	"github.com/jdonohoo/vern-bot/go/internal/vts"
+	"github.com/jdonohoo/legal-bot/go/internal/config"
+	"github.com/jdonohoo/legal-bot/go/internal/llm"
+	"github.com/jdonohoo/legal-bot/go/internal/vts"
 )
 
 // Options configures a pipeline run.
@@ -140,7 +140,7 @@ func (p *Pipeline) execute(mode string) error {
 	p.startTime = time.Now()
 	p.mode = mode
 
-	// Banner — concise in TUI mode (header already shows folder/mode/LLM),
+	// Banner - concise in TUI mode (header already shows folder/mode/LLM),
 	// full details in CLI mode.
 	p.printf("=== VERN DISCOVERY PIPELINE ===\n")
 	if opts.OnLog != nil {
@@ -161,7 +161,7 @@ func (p *Pipeline) execute(mode string) error {
 
 	// Print pipeline steps with step numbers for coloring
 	for _, step := range p.steps {
-		p.printf("[step] %d. %s → %s\n", step.Step, step.Name, step.LLM)
+		p.printf("[step] %d. %s ? %s\n", step.Step, step.Name, step.LLM)
 	}
 	p.printf("\n")
 
@@ -225,7 +225,7 @@ func (p *Pipeline) execute(mode string) error {
 				p.printf("    Historian failed: %v (continuing without index)\n", hErr)
 				p.log("Historian pre-step FAILED: %v", hErr)
 			} else if hResult.Skipped {
-				p.printf("    Historian: prompt only — nothing to index (skipped)\n")
+				p.printf("    Historian: prompt only - nothing to index (skipped)\n")
 				p.log("Historian pre-step: prompt only, no files to index")
 			} else {
 				p.printf("    Historian complete (%s, %d chars, LLM: %s)\n",
@@ -248,7 +248,7 @@ func (p *Pipeline) execute(mode string) error {
 	}
 
 	// Set working dir for codex
-	os.Setenv("VERN_WORKING_DIR", opts.DiscoveryDir)
+	os.Setenv("LEGAL_BOT_WORKING_DIR", opts.DiscoveryDir)
 
 	// Execute pipeline steps
 	failedSteps := []int{}
@@ -261,7 +261,7 @@ func (p *Pipeline) execute(mode string) error {
 		// Resume logic
 		if opts.ResumeFrom > 0 && stepNum < opts.ResumeFrom {
 			if !IsFailedOutput(outputFile) {
-				p.printf("\n>>> Pass %d/%d: %s — SKIPPED (resuming, output exists)\n", stepNum, len(p.steps), step.Name)
+				p.printf("\n>>> Pass %d/%d: %s - SKIPPED (resuming, output exists)\n", stepNum, len(p.steps), step.Name)
 				p.log("Step %d (%s): SKIPPED (resume, output exists)", stepNum, step.Name)
 				p.results[idx] = StepResult{
 					StepNum:    stepNum,
@@ -275,7 +275,7 @@ func (p *Pipeline) execute(mode string) error {
 				}
 				continue
 			}
-			p.printf("\n>>> Pass %d/%d: %s — re-running (no valid output for resume)\n", stepNum, len(p.steps), step.Name)
+			p.printf("\n>>> Pass %d/%d: %s - re-running (no valid output for resume)\n", stepNum, len(p.steps), step.Name)
 			p.log("Step %d (%s): re-running (no valid output for resume)", stepNum, step.Name)
 		}
 
@@ -336,7 +336,7 @@ func (p *Pipeline) execute(mode string) error {
 
 			// Detect silent LLM swap by resolveLLM (e.g. CLI not found)
 			if actualLLM != "" && actualLLM != retryLLM && !fellBack {
-				p.printf("    %s not available — resolved to %s\n", retryLLM, actualLLM)
+				p.printf("    %s not available - resolved to %s\n", retryLLM, actualLLM)
 				p.log("Step %d (%s): %s resolved to %s (CLI not found)", stepNum, step.Name, retryLLM, actualLLM)
 				fellBack = true
 			}
@@ -348,7 +348,7 @@ func (p *Pipeline) execute(mode string) error {
 
 			// On timeout with a non-fallback LLM, switch to fallback immediately
 			if result.ExitCode == llm.ExitTimeout && fallbackLLM != "" && retryLLM != fallbackLLM {
-				p.printf("    Timeout on %s — falling back to %s\n", retryLLM, fallbackLLM)
+				p.printf("    Timeout on %s - falling back to %s\n", retryLLM, fallbackLLM)
 				p.log("Step %d (%s): timeout on %s after %s, falling back to %s", stepNum, step.Name, retryLLM, result.Duration.Truncate(time.Second), fallbackLLM)
 				retryLLM = fallbackLLM
 				fellBack = true
@@ -357,7 +357,7 @@ func (p *Pipeline) execute(mode string) error {
 
 		// Fallback: if all retries failed and we have a fallback configured, try it as final safety net
 		if !succeeded && fallbackLLM != "" && retryLLM != fallbackLLM {
-			p.printf("    %s failed after %d attempt(s) — falling back to %s\n", originalLLM, totalAttempts, fallbackLLM)
+			p.printf("    %s failed after %d attempt(s) - falling back to %s\n", originalLLM, totalAttempts, fallbackLLM)
 			p.log("Step %d (%s): %s FAILED after %d attempt(s) (last exit %d), falling back to %s",
 				stepNum, step.Name, originalLLM, totalAttempts, lastExitCode, fallbackLLM)
 
@@ -403,7 +403,7 @@ func (p *Pipeline) execute(mode string) error {
 		if succeeded {
 			outputBytes := fileSize(outputFile)
 			if fellBack {
-				p.printf("    OK (%s→%s, %d bytes, %s)\n", originalLLM, usedLLM, outputBytes, duration.Truncate(time.Second))
+				p.printf("    OK (%s?%s, %d bytes, %s)\n", originalLLM, usedLLM, outputBytes, duration.Truncate(time.Second))
 				p.log("Step %d (%s): OK via %s (original=%s, attempt %d, %d bytes)", stepNum, step.Name, usedLLM, originalLLM, attemptCount, outputBytes)
 			} else {
 				p.printf("    OK (%s, %d bytes, %s)\n", usedLLM, outputBytes, duration.Truncate(time.Second))
@@ -533,8 +533,8 @@ func (p *Pipeline) buildStepPrompt(step config.PipelineStep, idx int) string {
 			consolOutput = string(data)
 		}
 		// Reinforce VTS format after the consolidation content so it isn't buried
-		vtsReminder := "\n\n---\nCRITICAL REMINDER: Your output MUST be a numbered task list using ### TASK N: Title format. Do NOT write a review, essay, grade, or analysis. Decompose the master plan above into 5-15 actionable implementation tasks. Every task MUST have **Description:**, **Acceptance Criteria:**, **Complexity:**, **Dependencies:**, and **Files:**. This output is machine-parsed — if you do not use ### TASK N: headers, the entire output is worthless."
-		return step.PromptPrefix + "\n\nORIGINAL REQUEST:\n" + p.fullPrompt + "\n\nMASTER PLAN TO DECOMPOSE INTO TASKS (do not review or grade this — break it into tasks):\n" + consolOutput + vtsReminder
+		vtsReminder := "\n\n---\nCRITICAL REMINDER: Your output MUST be a numbered task list using ### TASK N: Title format. Do NOT write a review, essay, grade, or analysis. Decompose the master plan above into 5-15 actionable implementation tasks. Every task MUST have **Description:**, **Acceptance Criteria:**, **Complexity:**, **Dependencies:**, and **Files:**. This output is machine-parsed - if you do not use ### TASK N: headers, the entire output is worthless."
+		return step.PromptPrefix + "\n\nORIGINAL REQUEST:\n" + p.fullPrompt + "\n\nMASTER PLAN TO DECOMPOSE INTO TASKS (do not review or grade this - break it into tasks):\n" + consolOutput + vtsReminder
 
 	default:
 		// Fallback: treat like previous
@@ -752,17 +752,17 @@ func (p *Pipeline) logJSON(result StepResult) {
 func (p *Pipeline) printDirectoryStructure() {
 	p.printf("\nStructure:\n")
 	p.printf("  %s/\n", p.opts.DiscoveryDir)
-	p.printf("  ├── input/\n")
+	p.printf("  |- input/\n")
 	inputDir := filepath.Join(p.opts.DiscoveryDir, "input")
 	entries, _ := os.ReadDir(inputDir)
 	for _, e := range entries {
-		p.printf("  │   ├── %s\n", e.Name())
+		p.printf("  |  |- %s\n", e.Name())
 	}
-	p.printf("  └── output/\n")
+	p.printf("  `- output/\n")
 	outputDir := filepath.Join(p.opts.DiscoveryDir, "output")
 	entries, _ = os.ReadDir(outputDir)
 	for _, e := range entries {
-		p.printf("      ├── %s\n", e.Name())
+		p.printf("     |- %s\n", e.Name())
 	}
 }
 
@@ -819,7 +819,7 @@ func (p *Pipeline) writeStatus(phase string, failedSteps []int) {
 		case "ok":
 			completedSteps++
 			if r.FellBack {
-				status = fmt.Sprintf("ok (fallback: %s→%s)", r.OriginalLLM, r.LLMUsed)
+				status = fmt.Sprintf("ok (fallback: %s?%s)", r.OriginalLLM, r.LLMUsed)
 			}
 		case "failed":
 			status = fmt.Sprintf("FAILED (exit %d, %d attempts)", r.ExitCode, r.Attempts)
@@ -844,7 +844,7 @@ func (p *Pipeline) writeStatus(phase string, failedSteps []int) {
 			llmCol = "-"
 		}
 		if r.FellBack {
-			llmCol = fmt.Sprintf("~~%s~~ → %s", r.OriginalLLM, r.LLMUsed)
+			llmCol = fmt.Sprintf("~~%s~~ ? %s", r.OriginalLLM, r.LLMUsed)
 		}
 
 		b.WriteString(fmt.Sprintf("| %d | %s | %s | %s | %s | %s |\n",

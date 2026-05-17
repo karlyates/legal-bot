@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Install git hooks for vern-bot development
+# Install git hooks for legal-bot development
 #
 # Run this after cloning the repo:
 #   ./install-hooks.sh
@@ -20,18 +20,18 @@ for hook in "$HOOKS_SRC"/*; do
     target="$HOOKS_DST/$hook_name"
 
     if [ -L "$target" ] && [ "$(readlink "$target")" = "$hook" ]; then
-        echo "  $hook_name — already installed"
+        echo "  $hook_name - already installed"
         continue
     fi
 
     if [ -e "$target" ] && [ ! -L "$target" ]; then
-        echo "  $hook_name — backing up existing hook to ${hook_name}.bak"
+        echo "  $hook_name - backing up existing hook to ${hook_name}.bak"
         mv "$target" "${target}.bak"
     fi
 
     ln -sf "$hook" "$target"
     chmod +x "$hook"
-    echo "  $hook_name — installed"
+    echo "  $hook_name - installed"
 done
 
 echo ""

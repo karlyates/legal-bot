@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Legacy Vern oracle wrapper.
+#
+# This wrapper is retained only as a compatibility marker and does not map to
+# a supported current Legal-Bot legal workflow command. See docs/legacy_surfaces.md.
+#
+
+echo "This is a legacy Vern oracle wrapper and is not part of the current Legal-Bot legal workflow." >&2
+echo "See docs/legacy_surfaces.md for the active command surface." >&2
+exit 1

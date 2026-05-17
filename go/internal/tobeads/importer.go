@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jdonohoo/vern-bot/go/internal/vts"
+	"github.com/jdonohoo/legal-bot/go/internal/vts"
 )
 
 // ImportOptions configures the import pipeline.
@@ -28,7 +28,7 @@ type ImportResult struct {
 	Errors   []string
 }
 
-// Run executes the full import pipeline: parse → normalize → preflight → execute.
+// Run executes the full import pipeline: parse ? normalize ? preflight ? execute.
 func Run(opts ImportOptions, runner BrRunner) (*ImportResult, error) {
 	result := &ImportResult{}
 
@@ -70,16 +70,16 @@ func Run(opts ImportOptions, runner BrRunner) (*ImportResult, error) {
 		if err != nil {
 			result.Failed++
 			result.Errors = append(result.Errors, fmt.Sprintf("create %s: %v", spec.ExternalRef, err))
-			fmt.Printf("  FAIL: %s — %v\n", spec.ExternalRef, err)
+			fmt.Printf("  FAIL: %s - %v\n", spec.ExternalRef, err)
 			continue
 		}
 		idMap[spec.ExternalRef] = beadID
 		if existed {
 			result.Skipped++
-			fmt.Printf("  SKIP: %s → %s (already exists)\n", spec.ExternalRef, beadID)
+			fmt.Printf("  SKIP: %s ? %s (already exists)\n", spec.ExternalRef, beadID)
 		} else {
 			result.Created++
-			fmt.Printf("  OK:   %s → %s\n", spec.ExternalRef, beadID)
+			fmt.Printf("  OK:   %s ? %s\n", spec.ExternalRef, beadID)
 		}
 	}
 
@@ -103,16 +103,16 @@ func Run(opts ImportOptions, runner BrRunner) (*ImportResult, error) {
 			toBR, ok := idMap[depVTS]
 			if !ok {
 				result.DepsFail++
-				result.Errors = append(result.Errors, fmt.Sprintf("dep %s→%s: target not in map", spec.ExternalRef, depVTS))
+				result.Errors = append(result.Errors, fmt.Sprintf("dep %s?%s: target not in map", spec.ExternalRef, depVTS))
 				continue
 			}
 			if err := runner.DepAdd(fromBR, toBR); err != nil {
 				result.DepsFail++
-				result.Errors = append(result.Errors, fmt.Sprintf("dep %s→%s: %v", spec.ExternalRef, depVTS, err))
-				fmt.Printf("  FAIL: %s → %s: %v\n", fromBR, toBR, err)
+				result.Errors = append(result.Errors, fmt.Sprintf("dep %s?%s: %v", spec.ExternalRef, depVTS, err))
+				fmt.Printf("  FAIL: %s ? %s: %v\n", fromBR, toBR, err)
 			} else {
 				result.DepsOK++
-				fmt.Printf("  DEP:  %s → %s\n", fromBR, toBR)
+				fmt.Printf("  DEP:  %s ? %s\n", fromBR, toBR)
 			}
 		}
 	}

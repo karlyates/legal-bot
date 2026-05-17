@@ -1,0 +1,94 @@
+C:\GIT\legal-bot\go\cmd\legal-bot\historian.go:9: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\historian.go:10: "github.com/jdonohoo/legal-bot/go/internal/pipeline"
+C:\GIT\legal-bot\go\cmd\legal-bot\historian.go:17: Long: `Historian Vern reads everything. Point it at a directory and the LLM will
+C:\GIT\legal-bot\go\cmd\legal-bot\historian.go:76: fmt.Printf("=== HISTORIAN VERN ===\n")
+C:\GIT\legal-bot\go\cmd\legal-bot\intake.go:10: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\intake.go:11: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\cmd\legal-bot\intake.go:385: // Binary at {root}/go/cmd/legal-bot/vern
+C:\GIT\legal-bot\go\cmd\legal-bot\model_routing.go:8: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\model_routing.go:9: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\cmd\legal-bot\model_routing_test.go:8: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\review.go:11: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\review.go:12: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:11: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:12: "github.com/jdonohoo/legal-bot/go/internal/embedded"
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:13: personapkg "github.com/jdonohoo/legal-bot/go/internal/persona"
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:172: {Name: "legal-bot-discovery", Path: "bin/legal-bot-discovery", Status: "retired", Replacement: "legal-bot guide | intake | review | workflow", Notes: "Legacy Vern discovery wrapper. Current Go CLI does not expose a discovery subcommand."},
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:173: {Name: "legal-bot-discovery.cmd", Path: "bin/legal-bot-discovery.cmd", Status: "retired", Replacement: "legal-bot guide | intake | review | workflow", Notes: "Windows legacy Vern discovery wrapper."},
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:174: {Name: "legal-bot-council", Path: "bin/legal-bot-council", Status: "retired", Replacement: "legal-bot tui", Notes: "Legacy VernHole council wrapper. Current Go CLI does not expose hole."},
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:175: {Name: "legal-bot-council.cmd", Path: "bin/legal-bot-council.cmd", Status: "retired", Replacement: "legal-bot tui", Notes: "Windows legacy VernHole council wrapper."},
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:184: {Name: "go/internal/council", Path: "go/internal/council", Status: "legacy", Replacement: "docs/legacy_surfaces.md", Notes: "VernHole council support, not part of the active legal workflow contract."},
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:186: {Name: "go/internal/vts", Path: "go/internal/vts", Status: "legacy", Replacement: "docs/legacy_surfaces.md", Notes: "Legacy Vern Task Spec helpers."},
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog.go:188: {Name: "go/internal/tui", Path: "go/internal/tui", Status: "partial", Replacement: "legal-bot tui", Notes: "Still exposed, but oriented around legacy discovery/VernHole utilities rather than the core legal workflow."},
+C:\GIT\legal-bot\go\cmd\legal-bot\routes_catalog_test.go:11: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\run.go:9: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\cmd\legal-bot\run.go:37: runCmd.Flags().IntVarP(&runTimeout, "timeout", "t", 0, "Timeout in seconds (default: LEGAL_BOT_TIMEOUT or legacy VERN_TIMEOUT, else 1200)")
+C:\GIT\legal-bot\go\cmd\legal-bot\run.go:49: } else if envTimeout := os.Getenv("VERN_TIMEOUT"); envTimeout != "" {
+C:\GIT\legal-bot\go\cmd\legal-bot\run.go:65: WorkingDir: envOrFallback("LEGAL_BOT_WORKING_DIR", "VERN_WORKING_DIR"),
+C:\GIT\legal-bot\go\cmd\legal-bot\run.go:108: // Fallback: look for LEGAL_BOT_ROOT first, then legacy VERN_ROOT.
+C:\GIT\legal-bot\go\cmd\legal-bot\run.go:109: if root := envOrFallback("LEGAL_BOT_ROOT", "VERN_ROOT"); root != "" {
+C:\GIT\legal-bot\go\cmd\legal-bot\setup.go:10: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\tui.go:4: "github.com/jdonohoo/legal-bot/go/internal/tui"
+C:\GIT\legal-bot\go\cmd\legal-bot\tui.go:11: Long:  "Start the Legal-Bot terminal UI for legacy-oriented discovery, VernHole, historian, and settings utilities. This is not the primary family-law workflow front door.",
+C:\GIT\legal-bot\go\cmd\legal-bot\workflow.go:11: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\cmd\legal-bot\workflow.go:12: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\internal\config\config.go:9: "github.com/jdonohoo/legal-bot/go/internal/embedded"
+C:\GIT\legal-bot\go\internal\config\config.go:24: VernHole       VernHoleConfig                `json:"vernhole"`
+C:\GIT\legal-bot\go\internal\config\config.go:72: // VernHoleConfig holds VernHole-specific settings.
+C:\GIT\legal-bot\go\internal\config\config.go:73: type VernHoleConfig struct {
+C:\GIT\legal-bot\go\internal\config\config.go:149: if cfg.VernHole.Min == 0 {
+C:\GIT\legal-bot\go\internal\config\config.go:150: cfg.VernHole.Min = 3
+C:\GIT\legal-bot\go\internal\config\config.go:152: if cfg.VernHole.DefaultCouncil == "" {
+C:\GIT\legal-bot\go\internal\config\config.go:153: cfg.VernHole.DefaultCouncil = "random"
+C:\GIT\legal-bot\go\internal\config\config.go:198: if cfg.VernHole.Min == 0 {
+C:\GIT\legal-bot\go\internal\config\config.go:199: cfg.VernHole.Min = 3
+C:\GIT\legal-bot\go\internal\config\config.go:201: if cfg.VernHole.DefaultCouncil == "" {
+C:\GIT\legal-bot\go\internal\config\config.go:202: cfg.VernHole.DefaultCouncil = "random"
+C:\GIT\legal-bot\go\internal\config\config.go:273: // GetSynthesisLLM returns the LLM to use for VernHole synthesis.
+C:\GIT\legal-bot\go\internal\config\config.go:449: VernHole: VernHoleConfig{
+C:\GIT\legal-bot\go\internal\config\config.go:468: PromptPrefix: "You are MightyVern. Analyze this idea and provide comprehensive initial analysis including: problem space, technical requirements, proposed architecture, unknowns and risks."},
+C:\GIT\legal-bot\go\internal\config\config.go:470: PromptPrefix: "You are Vernile the Great. Review and refine this analysis. Identify gaps, add architectural considerations, consider maintainability and elegance."},
+C:\GIT\legal-bot\go\internal\config\config.go:472: PromptPrefix: "You are YOLO Vern. Challenge and stress-test this plan. What could go wrong? What unconventional approaches exist? No sacred cows."},
+C:\GIT\legal-bot\go\internal\config\config.go:474: PromptPrefix: "You are MightyVern. Synthesize all inputs into a master plan. Merge insights, resolve contradictions, create unified vision, prioritize features."},
+C:\GIT\legal-bot\go\internal\config\config.go:476: PromptPrefix: "You are Architect Vern. Break down this master plan into actionable Vern Task Spec (VTS) tasks. Format each task with an h3 header exactly like this: ### TASK 1: Title Here. Include for each task: **Description:** what needs to be done, **Acceptance Criteria:** bullet list, **Complexity:** S|M|L|XL, **Dependencies:** Task N references or None, **Files:** list of files likely touched. Think in systems. Consider failure modes. Make it maintainable."},
+C:\GIT\legal-bot\go\internal\config\config.go:480: PromptPrefix: "You are MightyVern. Analyze this idea and provide comprehensive initial analysis including: problem space, technical requirements, proposed architecture, unknowns and risks."},
+C:\GIT\legal-bot\go\internal\config\config.go:482: PromptPrefix: "You are Vernile the Great. Review and refine this analysis. Identify gaps, add architectural considerations, consider maintainability and elegance."},
+C:\GIT\legal-bot\go\internal\config\config.go:484: PromptPrefix: "You are Vern the Mediocre. Reality-check this plan. What's over-engineered? What can be simplified? Where is cleverness hiding complexity? Cut the fluff, keep what ships."},
+C:\GIT\legal-bot\go\internal\config\config.go:486: PromptPrefix: "You are YOLO Vern. Challenge and stress-test this plan. What could go wrong? What unconventional approaches exist? No sacred cows."},
+C:\GIT\legal-bot\go\internal\config\config.go:488: PromptPrefix: "You are Startup Vern. What's the MVP here? Cut scope ruthlessly. What can ship in week one? What's a nice-to-have disguised as a must-have? If you're not embarrassed by v1, you shipped too late."},
+C:\GIT\legal-bot\go\internal\config\config.go:490: PromptPrefix: "You are MightyVern. Synthesize all inputs into a master plan. Merge insights, resolve contradictions, create unified vision, prioritize features."},
+C:\GIT\legal-bot\go\internal\config\config.go:492: PromptPrefix: "You are Architect Vern. Break down this master plan into actionable Vern Task Spec (VTS) tasks. Format each task with an h3 header exactly like this: ### TASK 1: Title Here. Include for each task: **Description:** what needs to be done, **Acceptance Criteria:** bullet list, **Complexity:** S|M|L|XL, **Dependencies:** Task N references or None, **Files:** list of files likely touched. Think in systems. Consider failure modes. Make it maintainable."},
+C:\GIT\legal-bot\go\internal\config\config_test.go:9: "github.com/jdonohoo/legal-bot/go/internal/persona"
+C:\GIT\legal-bot\go\internal\config\config_test.go:31: "vernhole": {
+C:\GIT\legal-bot\go\internal\config\config_test.go:49: if cfg.VernHole.DefaultCouncil != "hammers" {
+C:\GIT\legal-bot\go\internal\config\config_test.go:50: t.Errorf("council: got %q, want %q", cfg.VernHole.DefaultCouncil, "hammers")
+C:\GIT\legal-bot\go\internal\config\config_test.go:127: cfg := Load("/Users/justin/projects/jdonohoo/legal-bot")
+C:\GIT\legal-bot\go\internal\llm\log.go:30: // Disabled if LEGAL_BOT_LOG=0 or legacy VERN_LOG=0.
+C:\GIT\legal-bot\go\internal\llm\log.go:32: if os.Getenv("LEGAL_BOT_LOG") == "0" || os.Getenv("VERN_LOG") == "0" {
+C:\GIT\legal-bot\go\internal\llm\runner.go:13: personapkg "github.com/jdonohoo/legal-bot/go/internal/persona"
+C:\GIT\legal-bot\go\internal\llm\runner_test.go:59: description: MightyVern
+C:\GIT\legal-bot\go\internal\llm\runner_test.go:63: You are MightyVern. You wield the power of Codex.
+C:\GIT\legal-bot\go\internal\llm\runner_test.go:74: if !containsStr(ctx, "You are MightyVern") {
+C:\GIT\legal-bot\go\internal\persona\loader.go:10: "github.com/jdonohoo/legal-bot/go/internal/embedded"
+C:\GIT\legal-bot\go\internal\persona\loader.go:207: // E.g. "MightyVern / Codex Vern - Raw computational power." -> "MightyVern / Codex Vern"
+C:\GIT\legal-bot\go\internal\persona\loader.go:217: // E.g. "MightyVern / Codex Vern - Raw computational power." -> "Raw computational power"
+C:\GIT\legal-bot\go\internal\persona\loader_test.go:14: description: MightyVern / Codex Vern - Raw computational power.
+C:\GIT\legal-bot\go\internal\persona\loader_test.go:20: You are MightyVern. You wield the power of Codex.
+C:\GIT\legal-bot\go\internal\persona\loader_test.go:56: description: YOLO Vern - No guardrails.
+C:\GIT\legal-bot\go\internal\persona\loader_test.go:121: {"MightyVern / Codex Vern - Raw computational power. Comprehensive solutions.", "Raw computational power"},
+C:\GIT\legal-bot\go\internal\persona\loader_test.go:122: {"YOLO Vern - No guardrails.", "No guardrails"},
+C:\GIT\legal-bot\.tools\go1.22.12\go\src\cmd\compile\internal\ssa\README.md:3: // Use of this source code is governed by a BSD-style
+C:\GIT\legal-bot\.tools\go1.22.12\go\src\cmd\compile\README.md:3: // Use of this source code is governed by a BSD-style
+C:\GIT\legal-bot\README.md:96: Legacy Vern-era wrappers still exist in `bin/`, but they are not the current family-law workflow. See [Legacy Surfaces](/c:/GIT/legal-bot/docs/legacy_surfaces.md).
+C:\GIT\legal-bot\docs\architecture.md:91: Legacy Vern discovery/council/oracle/generate wrappers are not part of that current contract.
+C:\GIT\legal-bot\docs\legacy_discovery_migration.md:14: The repo still contains older discovery, council, historian, oracle, TUI, and Vern-era compatibility surfaces. Those are not automatically bugs and should not be renamed casually.
+C:\GIT\legal-bot\docs\legacy_surfaces.md:3: Legal-Bot originated from Vern-Bot. The repo still contains several Vern-era packages, wrappers, and compatibility layers.
+C:\GIT\legal-bot\docs\legacy_surfaces.md:29: | `bin/legal-bot-discovery` | retired | Legacy Vern discovery wrapper. Current Go CLI does not expose `discovery`. | `legal-bot guide`, `legal-bot intake`, `legal-bot review`, `legal-bot workflow` |
+C:\GIT\legal-bot\docs\legacy_surfaces.md:30: | `bin/legal-bot-discovery.cmd` | retired | Windows legacy Vern discovery wrapper. | `legal-bot guide`, `legal-bot intake`, `legal-bot review`, `legal-bot workflow` |
+C:\GIT\legal-bot\docs\legacy_surfaces.md:31: | `bin/legal-bot-council` | retired | Legacy VernHole council wrapper. Current Go CLI does not expose `hole`. | `legal-bot tui` only if you explicitly want the legacy utility UI |
+C:\GIT\legal-bot\docs\legacy_surfaces.md:32: | `bin/legal-bot-council.cmd` | retired | Windows legacy VernHole wrapper. | `legal-bot tui` only if you explicitly want the legacy utility UI |
+C:\GIT\legal-bot\docs\legacy_surfaces.md:41: | `go/internal/council` | legacy | VernHole council support, not part of the active legal workflow. | active legal routes do not depend on it |
+C:\GIT\legal-bot\docs\legacy_surfaces.md:43: | `go/internal/vts` | legacy | Vern Task Spec helpers. | active legal routes do not depend on it |
+C:\GIT\legal-bot\docs\legacy_surfaces.md:45: | `go/internal/tui` | partial | Still exposed through `legal-bot tui`, but oriented around legacy discovery/VernHole utilities. | `guide`, `intake`, `review`, `workflow` for legal work |
+C:\GIT\legal-bot\docs\legacy_surfaces.md:51: - Discovery, council, oracle, generate, VTS, and VernHole concepts are retained for compatibility or historical continuity, not as the main Legal-Bot family-law operator surface.
+C:\GIT\legal-bot\docs\user_workflow.md:444: The repo still contains Vern-era discovery, council, oracle, generate, VTS, and related compatibility code. Those are not the normal Legal-Bot legal workflow surface. See [Legacy Surfaces](/c:/GIT/legal-bot/docs/legacy_surfaces.md).

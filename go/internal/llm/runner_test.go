@@ -27,15 +27,40 @@ func TestResolveLLM(t *testing.T) {
 	}
 }
 
+func TestBuildEngineArgs(t *testing.T) {
+	codexArgs := buildCodexArgs("prompt", "out.md", "c:\\repo", RunOptions{Model: "gpt-5.4", Effort: "high"})
+	assertContainsSequence(t, codexArgs, []string{"--model", "gpt-5.4"})
+	assertContainsSequence(t, codexArgs, []string{"-c", "model_reasoning_effort=high"})
+	if containsArg(codexArgs, "--dangerously-bypass-approvals-and-sandbox") {
+		t.Fatal("codex args should not include bypass flag by default")
+	}
+
+	claudeArgs := buildClaudeArgs("prompt", RunOptions{Model: "sonnet", Effort: "xhigh"})
+	assertContainsSequence(t, claudeArgs, []string{"--model", "sonnet"})
+	assertContainsSequence(t, claudeArgs, []string{"--effort", "xhigh"})
+
+	geminiArgs := buildGeminiArgs("prompt", RunOptions{Model: "flash", Effort: "high"})
+	assertContainsSequence(t, geminiArgs, []string{"--model", "flash"})
+	if containsArg(geminiArgs, "--effort") {
+		t.Fatal("gemini args should not include effort")
+	}
+
+	copilotArgs := buildCopilotArgs("prompt", RunOptions{Model: "auto", Effort: "high"})
+	assertContainsSequence(t, copilotArgs, []string{"--model", "auto"})
+	if containsArg(copilotArgs, "--effort") {
+		t.Fatal("copilot args should not include effort")
+	}
+}
+
 func TestLoadPersonaContext(t *testing.T) {
 	dir := t.TempDir()
 	content := `---
 name: mighty
-description: MightyVern
+description: Lead Analyst
 model: opus
 ---
 
-You are MightyVern. You wield the power of Codex.
+You are the Lead Analyst. You wield the power of Codex.
 `
 	os.WriteFile(filepath.Join(dir, "mighty.md"), []byte(content), 0644)
 
@@ -46,7 +71,7 @@ You are MightyVern. You wield the power of Codex.
 	if !containsStr(ctx, "=== PERSONA ===") {
 		t.Error("should contain PERSONA markers")
 	}
-	if !containsStr(ctx, "You are MightyVern") {
+	if !containsStr(ctx, "You are the Lead Analyst") {
 		t.Error("should contain persona body")
 	}
 	// Should NOT contain frontmatter
@@ -71,11 +96,12 @@ func TestExitCodeFromErr(t *testing.T) {
 func TestLogRunWritesJSONL(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("HOME", tmpDir)
-	// Clear any VERN_LOG setting
-	t.Setenv("VERN_LOG", "")
+	t.Setenv("USERPROFILE", tmpDir)
+	// Clear any LEGAL_BOT_LOG setting
+	t.Setenv("LEGAL_BOT_LOG", "")
 
 	// Create the config dir structure so configDir() resolves here
-	logDir := filepath.Join(tmpDir, ".config", "vern", "logs")
+	logDir := filepath.Join(tmpDir, ".config", "legal-bot", "logs")
 
 	opts := RunOptions{
 		LLM:        "gemini",
@@ -92,7 +118,7 @@ func TestLogRunWritesJSONL(t *testing.T) {
 
 	logRun(opts, "gemini", result, nil, nil)
 
-	logPath := filepath.Join(logDir, "vern.log")
+	logPath := filepath.Join(logDir, "legal-bot.log")
 	data, err := os.ReadFile(logPath)
 	if err != nil {
 		t.Fatalf("failed to read log file: %v", err)
@@ -143,7 +169,8 @@ func TestLogRunWritesJSONL(t *testing.T) {
 func TestLogRunWithError(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("HOME", tmpDir)
-	t.Setenv("VERN_LOG", "")
+	t.Setenv("USERPROFILE", tmpDir)
+	t.Setenv("LEGAL_BOT_LOG", "")
 
 	opts := RunOptions{
 		LLM:    "codex",
@@ -157,7 +184,7 @@ func TestLogRunWithError(t *testing.T) {
 
 	logRun(opts, "codex", result, fmt.Errorf("signal: killed"), nil)
 
-	logPath := filepath.Join(tmpDir, ".config", "vern", "logs", "vern.log")
+	logPath := filepath.Join(tmpDir, ".config", "legal-bot", "logs", "legal-bot.log")
 	data, _ := os.ReadFile(logPath)
 
 	var entry logEntry
@@ -174,16 +201,17 @@ func TestLogRunWithError(t *testing.T) {
 func TestLogRunDisabledByEnv(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("HOME", tmpDir)
-	t.Setenv("VERN_LOG", "0")
+	t.Setenv("USERPROFILE", tmpDir)
+	t.Setenv("LEGAL_BOT_LOG", "0")
 
 	opts := RunOptions{LLM: "claude", Prompt: "test"}
 	result := &Result{LLMUsed: "claude", Duration: time.Second}
 
 	logRun(opts, "claude", result, nil, nil)
 
-	logPath := filepath.Join(tmpDir, ".config", "vern", "logs", "vern.log")
+	logPath := filepath.Join(tmpDir, ".config", "legal-bot", "logs", "legal-bot.log")
 	if _, err := os.Stat(logPath); err == nil {
-		t.Error("log file should not exist when VERN_LOG=0")
+		t.Error("log file should not exist when LEGAL_BOT_LOG=0")
 	}
 }
 
@@ -206,7 +234,8 @@ func TestTruncatePrompt(t *testing.T) {
 func TestLogRunAppendsMultipleEntries(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Setenv("HOME", tmpDir)
-	t.Setenv("VERN_LOG", "")
+	t.Setenv("USERPROFILE", tmpDir)
+	t.Setenv("LEGAL_BOT_LOG", "")
 
 	opts := RunOptions{LLM: "claude", Prompt: "first"}
 	result := &Result{LLMUsed: "claude", Duration: time.Second}
@@ -214,7 +243,7 @@ func TestLogRunAppendsMultipleEntries(t *testing.T) {
 	logRun(opts, "claude", result, nil, nil)
 	logRun(opts, "claude", result, nil, nil)
 
-	logPath := filepath.Join(tmpDir, ".config", "vern", "logs", "vern.log")
+	logPath := filepath.Join(tmpDir, ".config", "legal-bot", "logs", "legal-bot.log")
 	data, _ := os.ReadFile(logPath)
 	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
 	if len(lines) != 2 {
@@ -229,4 +258,30 @@ func containsStr(s, sub string) bool {
 		}
 	}
 	return false
+}
+
+func containsArg(args []string, needle string) bool {
+	for _, arg := range args {
+		if arg == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func assertContainsSequence(t *testing.T, args []string, sequence []string) {
+	t.Helper()
+	for i := 0; i <= len(args)-len(sequence); i++ {
+		match := true
+		for j := range sequence {
+			if args[i+j] != sequence[j] {
+				match = false
+				break
+			}
+		}
+		if match {
+			return
+		}
+	}
+	t.Fatalf("args %v do not contain sequence %v", args, sequence)
 }

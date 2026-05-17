@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jdonohoo/vern-bot/go/internal/vts"
+	"github.com/jdonohoo/legal-bot/go/internal/vts"
 )
 
 func TestPreflight_Valid(t *testing.T) {

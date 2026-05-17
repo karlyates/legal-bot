@@ -7,22 +7,24 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jdonohoo/vern-bot/go/internal/embedded"
+	"github.com/jdonohoo/legal-bot/go/internal/embedded"
 )
 
 // Persona represents a parsed agent file.
 type Persona struct {
-	Name        string
-	Description string
-	Model       string
-	Color       string
-	Body        string // Everything after the YAML frontmatter
+	Name         string
+	Description  string
+	Model        string
+	ModelProfile string
+	Color        string
+	Body         string // Everything after the YAML frontmatter
 }
 
 // Load reads an agent file and parses its YAML frontmatter and body.
 // agentsDir is the path to the agents/ directory, name is the persona ID (e.g. "mighty").
 // Falls back to embedded agent data if the file doesn't exist on disk.
 func Load(agentsDir, name string) (*Persona, error) {
+	name = ResolveName(name)
 	path := filepath.Join(agentsDir, name+".md")
 	p, err := LoadFile(path)
 	if err == nil {
@@ -72,6 +74,8 @@ func LoadFile(path string) (*Persona, error) {
 					p.Description = val
 				case "model":
 					p.Model = val
+				case "model_profile":
+					p.ModelProfile = val
 				case "color":
 					p.Color = val
 				}
@@ -97,11 +101,45 @@ func LoadFile(path string) (*Persona, error) {
 
 // LoadEmbedded loads a persona from the compiled-in embedded agent data.
 func LoadEmbedded(name string) (*Persona, error) {
+	name = ResolveName(name)
 	content, ok := embedded.GetAgent(name)
 	if !ok {
 		return nil, fmt.Errorf("agent %q not found in embedded data", name)
 	}
 	return ParseString(content)
+}
+
+// ResolveName maps legacy legal agent names to their v1 persona names.
+func ResolveName(name string) string {
+	if replacement, ok := legacyAgentAliases[name]; ok {
+		return replacement
+	}
+	return name
+}
+
+var legacyAgentAliases = map[string]string{
+	"intake-mapper":              "litigation-paralegal",
+	"document-card-generator":    "source-document-analyst",
+	"fact-extractor":             "atomic-fact-extractor",
+	"timeline-builder":           "chronology-clerk",
+	"open-questions-generator":   "attorney-prep-questioner",
+	"fact-auditor":               "trial-fact-checker",
+	"legal-sufficiency-reviewer": "family-law-attorney-reviewer",
+	"court-reader":               "neutral-court-reader",
+	"attack-surface-reviewer":    "opposing-counsel",
+	"relief-alignment-reviewer":  "relief-and-order-alignment-counsel",
+	"preservation-editor":        "legal-writing-preservation-editor",
+	"bulldog-advocate":           "strategic-options-architect",
+	"final-synthesizer":          "managing-partner-final-synthesizer",
+}
+
+// LegacyAliases returns a copy of the legacy agent alias table.
+func LegacyAliases() map[string]string {
+	out := make(map[string]string, len(legacyAgentAliases))
+	for legacy, active := range legacyAgentAliases {
+		out[legacy] = active
+	}
+	return out
 }
 
 // ParseString parses persona markdown content from a string (same format as .md files).
@@ -131,6 +169,8 @@ func ParseString(content string) (*Persona, error) {
 					p.Description = val
 				case "model":
 					p.Model = val
+				case "model_profile":
+					p.ModelProfile = val
 				case "color":
 					p.Color = val
 				}
@@ -164,7 +204,7 @@ func ModelToLLM(model string) string {
 }
 
 // DisplayName extracts the persona display name from a full description string.
-// E.g. "MightyVern / Codex Vern - Raw computational power." -> "MightyVern / Codex Vern"
+// E.g. "Lead Analyst / Codex Analyst - Raw computational power." -> "Lead Analyst / Codex Analyst"
 // Falls back to the full description (trimmed) if no dash separator is found.
 func DisplayName(desc string) string {
 	if idx := strings.Index(desc, " - "); idx >= 0 {
@@ -174,7 +214,7 @@ func DisplayName(desc string) string {
 }
 
 // ShortDescription extracts the short descriptor from a full description string.
-// E.g. "MightyVern / Codex Vern - Raw computational power." -> "Raw computational power"
+// E.g. "Lead Analyst / Codex Analyst - Raw computational power." -> "Raw computational power"
 func ShortDescription(desc string) string {
 	if idx := strings.Index(desc, " - "); idx >= 0 {
 		short := desc[idx+3:]

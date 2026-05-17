@@ -1,0 +1,22 @@
+# Strategy Safety Rules
+
+- Creative legal strategy must be lawful, fact-grounded, and source-disciplined.
+- Outlier ideas should be labeled clearly as outlier options, but the system should still recommend the strongest practical path.
+- Separate conventional, creative, risky, and not-worth-pursuing options.
+- Never invent procedural availability.
+- Never claim a motion, expert, evaluation, or remedy is legally available unless supplied materials or legal-authority-scholar output supports it.
+- Do not encourage frivolous, abusive, retaliatory, or bad-faith filings.
+- Do not confuse bold advocacy with inflammatory writing.
+- Preserve status quo analysis when relevant.
+- Always include downside risk.
+- Always include what source support would be needed.
+- Always include what legal authority would be needed.
+- Always consider whether the right move is to pursue now, preserve for pattern, use OFW first, ask counsel first, or let it go.
+- Always include a Do Not Chase analysis when the issue looks too small, too weak, too premature, too optics-negative, or too expensive in credibility to press right now.
+- The system is allowed to recommend action when the record supports it, but it must also be willing to say:
+  - preserve this for pattern evidence
+  - send one limited record-building message
+  - ask counsel first
+  - do not send this yet
+  - journal only
+  - let it go

@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Legacy Vern-Bot wrapper.
+#
+# This wrapper is not part of the current Legal-Bot family-law workflow.
+# Use `legal-bot guide`, `legal-bot intake`, `legal-bot review`, or
+# `legal-bot workflow` instead. See docs/legacy_surfaces.md.
+#
+
+echo "This is a legacy Vern-Bot wrapper and is not part of the current Legal-Bot legal workflow." >&2
+echo "Use legal-bot guide, legal-bot intake, legal-bot review, or legal-bot workflow instead." >&2
+echo "See docs/legacy_surfaces.md." >&2
+exit 1

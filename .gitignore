@@ -6,8 +6,21 @@
 
 # Go build artifacts
 go/bin/
+.tools/
+.go-cache/
 
 CLAUDE.md
 
 # bv (beads viewer) local config and caches
 .bv/
+
+# Legal-bot: sensitive case materials (never commit)
+matters/*/input/
+matters/*/drafts/
+case/private/
+
+# Common document formats that might contain sensitive data
+*.pdf
+*.docx
+*.doc
+*.xlsx

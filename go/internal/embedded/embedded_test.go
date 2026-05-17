@@ -7,10 +7,23 @@ import (
 )
 
 var expectedAgents = []string{
-	"academic", "architect", "enterprise", "great", "historian", 
-	"inverse", "ketamine", "mediocre", "mighty", "nyquil", 
-	"optimist", "oracle", "paranoid", "retro", "startup", 
-	"ux", "vernhole-orchestrator", "yolo",
+	"atomic-fact-extractor",
+	"attorney-prep-questioner",
+	"child-best-interests-family-dynamics-reviewer",
+	"chronology-clerk",
+	"family-law-attorney-reviewer",
+	"financial-support-reviewer",
+	"legal-authority-scholar",
+	"legal-writing-preservation-editor",
+	"litigation-paralegal",
+	"managing-partner-final-synthesizer",
+	"neutral-court-reader",
+	"opposing-counsel",
+	"practical-resolution-reviewer",
+	"relief-and-order-alignment-counsel",
+	"source-document-analyst",
+	"strategic-options-architect",
+	"trial-fact-checker",
 }
 
 func TestListAgentsReturnsAll(t *testing.T) {
@@ -74,7 +87,7 @@ func TestGetDefaultConfigIsValidJSON(t *testing.T) {
 	}
 
 	// Check expected top-level keys
-	for _, key := range []string{"version", "timeout_seconds", "llms", "llm_mode", "llm_modes", "discovery_pipelines"} {
+	for _, key := range []string{"version", "timeout_seconds", "llms", "llm_mode", "llm_modes", "legal_pipelines", "model_profiles"} {
 		if _, ok := cfg[key]; !ok {
 			t.Errorf("GetDefaultConfig() missing key %q", key)
 		}

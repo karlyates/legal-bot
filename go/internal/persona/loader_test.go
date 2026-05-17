@@ -11,12 +11,13 @@ func TestLoadFile(t *testing.T) {
 	dir := t.TempDir()
 	content := `---
 name: mighty
-description: MightyVern / Codex Vern - Raw computational power.
+description: Lead Analyst / Codex Analyst - Raw computational power.
 model: opus
+model_profile: review_reasoning
 color: blue
 ---
 
-You are MightyVern. You wield the power of Codex.
+You are the Lead Analyst. You wield the power of Codex.
 
 PERSONALITY:
 - Powerful and thorough
@@ -37,6 +38,9 @@ PERSONALITY:
 	if p.Model != "opus" {
 		t.Errorf("model: got %q, want %q", p.Model, "opus")
 	}
+	if p.ModelProfile != "review_reasoning" {
+		t.Errorf("model_profile: got %q, want %q", p.ModelProfile, "review_reasoning")
+	}
 	if p.Color != "blue" {
 		t.Errorf("color: got %q, want %q", p.Color, "blue")
 	}
@@ -49,7 +53,7 @@ func TestLoad(t *testing.T) {
 	dir := t.TempDir()
 	content := `---
 name: yolo
-description: YOLO Vern - No guardrails.
+description: Stress Tester - No guardrails.
 model: sonnet
 ---
 
@@ -86,13 +90,36 @@ func TestModelToLLM(t *testing.T) {
 	}
 }
 
+func TestResolveNameLegacyLegalAgents(t *testing.T) {
+	tests := map[string]string{
+		"intake-mapper":              "litigation-paralegal",
+		"document-card-generator":    "source-document-analyst",
+		"fact-extractor":             "atomic-fact-extractor",
+		"timeline-builder":           "chronology-clerk",
+		"open-questions-generator":   "attorney-prep-questioner",
+		"fact-auditor":               "trial-fact-checker",
+		"legal-sufficiency-reviewer": "family-law-attorney-reviewer",
+		"court-reader":               "neutral-court-reader",
+		"attack-surface-reviewer":    "opposing-counsel",
+		"relief-alignment-reviewer":  "relief-and-order-alignment-counsel",
+		"preservation-editor":        "legal-writing-preservation-editor",
+		"bulldog-advocate":           "strategic-options-architect",
+		"final-synthesizer":          "managing-partner-final-synthesizer",
+	}
+	for legacy, want := range tests {
+		if got := ResolveName(legacy); got != want {
+			t.Errorf("ResolveName(%q) = %q, want %q", legacy, got, want)
+		}
+	}
+}
+
 func TestShortDescription(t *testing.T) {
 	tests := []struct {
 		desc string
 		want string
 	}{
-		{"MightyVern / Codex Vern - Raw computational power. Comprehensive solutions.", "Raw computational power"},
-		{"YOLO Vern - No guardrails.", "No guardrails"},
+		{"Lead Analyst / Codex Analyst - Raw computational power. Comprehensive solutions.", "Raw computational power"},
+		{"Stress Tester - No guardrails.", "No guardrails"},
 		{"Simple description", "Simple description"},
 	}
 	for _, tt := range tests {

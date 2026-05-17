@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jdonohoo/vern-bot/go/internal/vts"
+	"github.com/jdonohoo/legal-bot/go/internal/vts"
 )
 
 func TestNormalize_ValidTask(t *testing.T) {
@@ -68,7 +68,7 @@ func TestNormalize_AllStatuses(t *testing.T) {
 			t.Errorf("status %q: unexpected error: %v", vtsStatus, errs)
 		}
 		if len(specs) == 1 && specs[0].Status != beadsStatus {
-			t.Errorf("status %q → %q, want %q", vtsStatus, specs[0].Status, beadsStatus)
+			t.Errorf("status %q ? %q, want %q", vtsStatus, specs[0].Status, beadsStatus)
 		}
 	}
 }

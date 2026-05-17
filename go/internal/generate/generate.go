@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jdonohoo/vern-bot/go/internal/llm"
-	"github.com/jdonohoo/vern-bot/go/internal/persona"
+	"github.com/jdonohoo/legal-bot/go/internal/llm"
+	"github.com/jdonohoo/legal-bot/go/internal/persona"
 )
 
 // Options configures the persona generation.
@@ -232,8 +232,8 @@ func Run(opts Options) error {
 
 // DetectRepoRoot walks up from cwd looking for agents/ + go/ coexisting.
 func DetectRepoRoot() (string, error) {
-	// Check VERN_ROOT env var first
-	if root := os.Getenv("VERN_ROOT"); root != "" {
+	// Check LEGAL_BOT_ROOT env var first
+	if root := os.Getenv("LEGAL_BOT_ROOT"); root != "" {
 		if hasRepoMarkers(root) {
 			return root, nil
 		}
@@ -255,7 +255,7 @@ func DetectRepoRoot() (string, error) {
 		dir = parent
 	}
 
-	return "", fmt.Errorf("could not find vern-bot repo root (looking for agents/ + go/ dirs)")
+	return "", fmt.Errorf("could not find legal-bot repo root (looking for agents/ + go/ dirs)")
 }
 
 func hasRepoMarkers(dir string) bool {

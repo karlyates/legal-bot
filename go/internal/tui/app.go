@@ -78,7 +78,7 @@ func checkForUpdate(currentVersion string) tea.Cmd {
 		}
 
 		client := &http.Client{Timeout: 3 * time.Second}
-		resp, err := client.Get("https://api.github.com/repos/jdonohoo/vern-bot/releases/latest")
+		resp, err := client.Get("https://api.github.com/repos/jdonohoo/legal-bot/releases/latest")
 		if err != nil {
 			return nil
 		}
@@ -406,7 +406,7 @@ func (a App) View() string {
 		bottomRight := ""
 		if a.updateAvailable != "" {
 			bottomRight = updateStyle.Render(
-				fmt.Sprintf("Update available %s! Run: brew upgrade vern", a.updateAvailable),
+				fmt.Sprintf("Update available %s! Run: brew upgrade legal-bot", a.updateAvailable),
 			)
 		}
 		leftW := lipgloss.Width(versionLabel)
@@ -455,3 +455,4 @@ func Run(projectRoot, agentsDir, version string) error {
 	}
 	return nil
 }
+

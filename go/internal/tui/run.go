@@ -13,8 +13,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 
-	"github.com/jdonohoo/vern-bot/go/internal/council"
-	"github.com/jdonohoo/vern-bot/go/internal/llm"
+	"github.com/jdonohoo/legal-bot/go/internal/council"
+	"github.com/jdonohoo/legal-bot/go/internal/llm"
 )
 
 type runState int
@@ -109,7 +109,7 @@ func (m *RunModel) buildForm() *huh.Form {
 	}
 	for _, vern := range council.ScanRoster(m.agentsDir) {
 		personaOpts = append(personaOpts, huh.NewOption(
-			fmt.Sprintf("%s — %s", vern.ID, vern.Desc), vern.ID,
+			fmt.Sprintf("%s - %s", vern.ID, vern.Desc), vern.ID,
 		))
 	}
 
@@ -349,7 +349,7 @@ func (m RunModel) startRun() tea.Cmd {
 		var lastStderr string
 
 		for attempt := 1; attempt <= maxRunAttempts; attempt++ {
-			logLine := fmt.Sprintf(">>> Attempt %d/%d — Running %s", attempt, maxRunAttempts, v.llmName)
+			logLine := fmt.Sprintf(">>> Attempt %d/%d - Running %s", attempt, maxRunAttempts, v.llmName)
 			if v.persona != "" {
 				logLine += fmt.Sprintf(" (persona: %s)", v.persona)
 			}

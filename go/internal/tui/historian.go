@@ -12,8 +12,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 
-	"github.com/jdonohoo/vern-bot/go/internal/config"
-	"github.com/jdonohoo/vern-bot/go/internal/pipeline"
+	"github.com/jdonohoo/legal-bot/go/internal/config"
+	"github.com/jdonohoo/legal-bot/go/internal/pipeline"
 )
 
 type histState int

@@ -1,34 +1,23 @@
 {
-  "version": "2.9.1",
+  "version": "1.2.0",
   "timeout_seconds": 1200,
   "max_retries": 1,
   "llms": {
     "claude": true,
-    "codex": true,
     "gemini": true,
-    "copilot": true
+    "codex": false,
+    "copilot": false
   },
   "llm_mode": "mixed_claude_fallback",
   "llm_modes": {
     "mixed_claude_fallback": {
       "description": "Mixed LLMs, claude as safety net",
-      "fallback": {"codex": "claude", "gemini": "claude", "copilot": "claude"},
+      "fallback": {
+        "codex": "claude",
+        "gemini": "claude",
+        "copilot": "claude"
+      },
       "synthesis_llm": "claude"
-    },
-    "mixed_codex_fallback": {
-      "description": "Mixed LLMs, codex as safety net",
-      "fallback": {"claude": "codex", "gemini": "codex", "copilot": "codex"},
-      "synthesis_llm": "codex"
-    },
-    "mixed_gemini_fallback": {
-      "description": "Mixed LLMs, gemini as safety net",
-      "fallback": {"claude": "gemini", "codex": "gemini", "copilot": "gemini"},
-      "synthesis_llm": "gemini"
-    },
-    "mixed_copilot_fallback": {
-      "description": "Mixed LLMs, copilot as safety net",
-      "fallback": {"claude": "copilot", "codex": "copilot", "gemini": "copilot"},
-      "synthesis_llm": "copilot"
     },
     "single_llm": {
       "description": "Single LLM for everything",
@@ -37,112 +26,1305 @@
       "synthesis_llm": ""
     }
   },
+  "model_profiles": {
+    "intake_long_context": {
+      "primary": {
+        "engine": "gemini",
+        "model": "pro"
+      },
+      "fallbacks": [
+        {
+          "engine": "claude",
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      ]
+    },
+    "structured_extraction": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4-mini",
+        "effort": "medium"
+      },
+      "fallbacks": [
+        {
+          "engine": "gemini",
+          "model": "flash"
+        },
+        {
+          "engine": "claude",
+          "model": "haiku",
+          "effort": "medium"
+        }
+      ]
+    },
+    "review_reasoning": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4",
+        "effort": "medium"
+      },
+      "fallbacks": [
+        {
+          "engine": "claude",
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        {
+          "engine": "gemini",
+          "model": "pro"
+        }
+      ]
+    },
+    "final_synthesis": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4",
+        "effort": "high"
+      },
+      "fallbacks": [
+        {
+          "engine": "claude",
+          "model": "opus",
+          "effort": "high"
+        },
+        {
+          "engine": "gemini",
+          "model": "pro"
+        }
+      ]
+    },
+    "cheap_fast": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4-mini",
+        "effort": "low"
+      },
+      "fallbacks": [
+        {
+          "engine": "gemini",
+          "model": "flash-lite"
+        },
+        {
+          "engine": "claude",
+          "model": "haiku",
+          "effort": "medium"
+        }
+      ]
+    },
+    "strategy_reasoning": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4",
+        "effort": "high"
+      },
+      "fallbacks": [
+        {
+          "engine": "claude",
+          "model": "opus",
+          "effort": "high"
+        },
+        {
+          "engine": "gemini",
+          "model": "pro"
+        }
+      ]
+    },
+    "legal_research": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4",
+        "effort": "high"
+      },
+      "fallbacks": [
+        {
+          "engine": "claude",
+          "model": "opus",
+          "effort": "high"
+        },
+        {
+          "engine": "gemini",
+          "model": "pro"
+        }
+      ]
+    }
+  },
   "pipeline_mode": "default",
-  "discovery_pipelines": {
-    "default": [
+  "legal_pipelines": {
+    "intake": [
       {
         "step": 1,
-        "name": "Initial Analysis",
-        "persona": "mighty",
-        "llm": "codex",
+        "name": "Document Intake and Registration",
+        "persona": "litigation-paralegal",
+        "llm": "gemini",
+        "model_profile": "intake_long_context",
         "context_mode": "prompt_only",
-        "prompt_prefix": "You are MightyVern. Analyze this idea and provide comprehensive initial analysis including: problem space, technical requirements, proposed architecture, unknowns and risks."
+        "prompt_prefix": "You are the Litigation Paralegal in Intake Mode. Scan the provided source documents, classify each file, assign stable document IDs, and produce document_register.csv plus intake findings. Follow your agent instructions exactly."
       },
       {
         "step": 2,
-        "name": "Refinement",
-        "persona": "great",
+        "name": "Source Document Cards",
+        "persona": "source-document-analyst",
         "llm": "claude",
+        "model_profile": "structured_extraction",
         "context_mode": "previous",
-        "prompt_prefix": "You are Vernile the Great. Review and refine this analysis. Identify gaps, add architectural considerations, consider maintainability and elegance."
+        "prompt_prefix": "You are the Source Document Analyst. For each document in the register, produce durable source document cards that separate what each document establishes, alleges, suggests, contradicts, and cautions. Follow your agent instructions exactly."
       },
       {
         "step": 3,
-        "name": "Chaos Check",
-        "persona": "yolo",
-        "llm": "gemini",
-        "context_mode": "previous",
-        "prompt_prefix": "You are YOLO Vern. Challenge and stress-test this plan. What could go wrong? What unconventional approaches exist? No sacred cows."
+        "name": "Chronology Construction",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "knowledge_layer",
+        "prompt_prefix": "You are the Chronology Clerk. Build clean timelines that separate event date, document date, and filing date, and flag status-quo turning points. Follow your agent instructions exactly."
       },
       {
         "step": 4,
-        "name": "Consolidation",
-        "persona": "mighty",
-        "llm": "codex",
-        "context_mode": "all_previous",
-        "prompt_prefix": "You are MightyVern. Synthesize all inputs into a master plan. Merge insights, resolve contradictions, create unified vision, prioritize features."
+        "name": "Atomic Fact Extraction",
+        "persona": "atomic-fact-extractor",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "knowledge_layer",
+        "prompt_prefix": "You are the Atomic Fact Extractor. Extract atomic source-linked fact candidates with provenance, dispute status, confidence, and safe-use notes. Follow your agent instructions exactly."
       },
       {
         "step": 5,
-        "name": "Architect Breakdown",
-        "persona": "architect",
+        "name": "Attorney Prep Questions",
+        "persona": "attorney-prep-questioner",
         "llm": "claude",
-        "context_mode": "consolidation",
-        "prompt_prefix": "You are Architect Vern. Your ONLY job is to break down the master plan into numbered implementation tasks. Do NOT write an essay, review, or analysis. Output ONLY a structured task list.\n\nFORMAT REQUIREMENTS (mandatory — the output is machine-parsed):\n- Every task MUST start with exactly: ### TASK N: Title\n- Number tasks sequentially starting at 1\n- Each task MUST include these bold fields:\n  **Description:** what needs to be done\n  **Acceptance Criteria:**\n  - bullet list of done-when conditions\n  **Complexity:** S|M|L|XL\n  **Dependencies:** Task N references or None\n  **Files:** list of files likely touched\n\nExample task:\n### TASK 1: Implement user authentication\n**Description:** Add JWT-based auth middleware\n**Acceptance Criteria:**\n- Login endpoint returns valid JWT\n- Protected routes reject invalid tokens\n**Complexity:** M\n**Dependencies:** None\n**Files:** auth.go, middleware.go, routes.go\n\nProduce 5-15 tasks. Think in systems. Consider failure modes. Make it maintainable."
+        "model_profile": "review_reasoning",
+        "context_mode": "knowledge_layer",
+        "prompt_prefix": "You are the Attorney Prep Questioner. Generate only high-value questions that would change the draft, relief, risk, legal authority posture, or attorney strategy. Follow your agent instructions exactly."
       }
     ],
-    "expanded": [
+    "review_quick": [
       {
         "step": 1,
-        "name": "Initial Analysis",
-        "persona": "mighty",
-        "llm": "codex",
-        "context_mode": "prompt_only",
-        "prompt_prefix": "You are MightyVern. Analyze this idea and provide comprehensive initial analysis including: problem space, technical requirements, proposed architecture, unknowns and risks."
+        "name": "Draft Mechanics Review",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Draft Mechanics Mode. Check filing mechanics, caption, party names, exhibit references, attachments, and procedural hygiene. Follow your agent instructions exactly."
       },
       {
         "step": 2,
-        "name": "Refinement",
-        "persona": "great",
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
         "llm": "claude",
-        "context_mode": "previous",
-        "prompt_prefix": "You are Vernile the Great. Review and refine this analysis. Identify gaps, add architectural considerations, consider maintainability and elegance."
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Review structural connection among facts, supplied legal standards, and requested relief, and give the user your best source-disciplined legal analysis and recommendation. Follow your agent instructions exactly."
       },
       {
         "step": 3,
-        "name": "Reality Check",
-        "persona": "mediocre",
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
         "llm": "claude",
-        "context_mode": "previous",
-        "prompt_prefix": "You are Vern the Mediocre. Reality-check this plan. What's over-engineered? What can be simplified? Where is cleverness hiding complexity? Cut the fluff, keep what ships."
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Diagnose likely attack surfaces, credibility risks, procedural attacks, and safer framing without exaggerating remote risk. Follow your agent instructions exactly."
       },
       {
         "step": 4,
-        "name": "Chaos Check",
-        "persona": "yolo",
-        "llm": "gemini",
-        "context_mode": "previous",
-        "prompt_prefix": "You are YOLO Vern. Challenge and stress-test this plan. What could go wrong? What unconventional approaches exist? No sacred cows."
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Deduplicate findings, prioritize ruthlessly, approve only material edits, classify draft readiness, and produce the attorney handoff. Follow your agent instructions exactly."
+      }
+    ],
+    "review_standard": [
+      {
+        "step": 1,
+        "name": "Draft Mechanics Review",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Draft Mechanics Mode. Check filing mechanics, caption, party names, exhibit references, attachments, and procedural hygiene. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Trial Fact Checker. Compare factual claims in the draft against the knowledge layer and classify support, overstatement, contradiction, and citation needs. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Review structural connection among facts, supplied legal standards, and requested relief, and give the user your best source-disciplined legal analysis and recommendation. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Diagnose likely attack surfaces, credibility risks, procedural attacks, and safer framing without exaggerating remote risk. Follow your agent instructions exactly."
       },
       {
         "step": 5,
-        "name": "MVP Lens",
-        "persona": "startup",
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
         "llm": "claude",
-        "context_mode": "previous",
-        "prompt_prefix": "You are Startup Vern. What's the MVP here? Cut scope ruthlessly. What can ship in week one? What's a nice-to-have disguised as a must-have? If you're not embarrassed by v1, you shipped too late."
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader. Use judge, commissioner, or evaluator_special_master mode as appropriate and explain how the draft may read to a neutral court audience. Follow your agent instructions exactly."
       },
       {
         "step": 6,
-        "name": "Consolidation",
-        "persona": "mighty",
-        "llm": "codex",
-        "context_mode": "all_previous",
-        "prompt_prefix": "You are MightyVern. Synthesize all inputs into a master plan. Merge insights, resolve contradictions, create unified vision, prioritize features."
+        "name": "Relief and Order Alignment Review",
+        "persona": "relief-and-order-alignment-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Relief and Order Alignment Counsel. Compare the motion body, declaration, prayer, proposed order, relief library, and supporting facts. Follow your agent instructions exactly."
       },
       {
         "step": 7,
-        "name": "Architect Breakdown",
-        "persona": "architect",
+        "name": "Legal Writing Preservation Edits",
+        "persona": "legal-writing-preservation-editor",
         "llm": "claude",
-        "context_mode": "consolidation",
-        "prompt_prefix": "You are Architect Vern. Your ONLY job is to break down the master plan into numbered implementation tasks. Do NOT write an essay, review, or analysis. Output ONLY a structured task list.\n\nFORMAT REQUIREMENTS (mandatory — the output is machine-parsed):\n- Every task MUST start with exactly: ### TASK N: Title\n- Number tasks sequentially starting at 1\n- Each task MUST include these bold fields:\n  **Description:** what needs to be done\n  **Acceptance Criteria:**\n  - bullet list of done-when conditions\n  **Complexity:** S|M|L|XL\n  **Dependencies:** Task N references or None\n  **Files:** list of files likely touched\n\nExample task:\n### TASK 1: Implement user authentication\n**Description:** Add JWT-based auth middleware\n**Acceptance Criteria:**\n- Login endpoint returns valid JWT\n- Protected routes reject invalid tokens\n**Complexity:** M\n**Dependencies:** None\n**Files:** auth.go, middleware.go, routes.go\n\nProduce 5-15 tasks. Think in systems. Consider failure modes. Make it maintainable."
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_reviews",
+        "prompt_prefix": "You are the Legal Writing Preservation Editor. Read the draft and previous findings, then propose only targeted edits that materially improve factual accuracy, structure, relief alignment, clarity, credibility, or risk reduction. Follow your agent instructions exactly."
+      },
+      {
+        "step": 8,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Deduplicate findings, prioritize ruthlessly, approve only material edits, classify draft readiness, and produce the attorney handoff. Follow your agent instructions exactly."
+      }
+    ],
+    "review_deep": [
+      {
+        "step": 1,
+        "name": "Draft Mechanics Review",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Draft Mechanics Mode. Check filing mechanics, caption, party names, exhibit references, attachments, and procedural hygiene. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Trial Fact Checker. Compare factual claims in the draft against the knowledge layer and classify support, overstatement, contradiction, and citation needs. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Review structural connection among facts, supplied legal standards, and requested relief, and give the user your best source-disciplined legal analysis and recommendation. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Diagnose likely attack surfaces, credibility risks, procedural attacks, and safer framing without exaggerating remote risk. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader. Use judge, commissioner, or evaluator_special_master mode as appropriate and explain how the draft may read to a neutral court audience. Follow your agent instructions exactly."
+      },
+      {
+        "step": 6,
+        "name": "Relief and Order Alignment Review",
+        "persona": "relief-and-order-alignment-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Relief and Order Alignment Counsel. Compare the motion body, declaration, prayer, proposed order, relief library, and supporting facts. Follow your agent instructions exactly."
+      },
+      {
+        "step": 7,
+        "name": "Strategic Options Review",
+        "persona": "strategic-options-architect",
+        "llm": "claude",
+        "model_profile": "strategy_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Strategic Options Architect. Identify lawful strategic options, status-quo leverage, procedural paths, and expert or evaluation ideas for attorney review. Follow your agent instructions exactly."
+      },
+      {
+        "step": 8,
+        "name": "Practical Resolution Review",
+        "persona": "practical-resolution-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Practical Resolution Reviewer. Ask whether the draft solves the practical family-law problem or merely escalates it. Follow your agent instructions exactly."
+      },
+      {
+        "step": 9,
+        "name": "Legal Writing Preservation Edits",
+        "persona": "legal-writing-preservation-editor",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_reviews",
+        "prompt_prefix": "You are the Legal Writing Preservation Editor. Read the draft and previous findings, then propose only targeted edits that materially improve factual accuracy, structure, relief alignment, clarity, credibility, or risk reduction. Follow your agent instructions exactly."
+      },
+      {
+        "step": 10,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Deduplicate findings, prioritize ruthlessly, approve only material edits, classify draft readiness, and produce the attorney handoff. Follow your agent instructions exactly."
+      }
+    ],
+    "review_legal_research": [
+      {
+        "step": 1,
+        "name": "Legal Authority Scholar Review",
+        "persona": "legal-authority-scholar",
+        "llm": "claude",
+        "model_profile": "legal_research",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Legal Authority Scholar. Verify legal standards, statutes, rules, cases, procedural vehicles, and remedy authority using a citation-first approach. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_reviews",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Read the verified authority findings and explain what the draft still does not connect clearly enough for attorney review. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Filter legal research down to what matters to the draft, strategy, and attorney handoff. Follow your agent instructions exactly."
+      }
+    ],
+    "review_strategy": [
+      {
+        "step": 1,
+        "name": "Chronology Review",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Chronology Clerk. Review sequence, status quo, and turning points that shape leverage and strategy. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Trial Fact Checker. Review strategic factual claims for support, overstatement, and contradiction. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Spot structural legal and relief issues that shape attorney strategy. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Forecast how the other side could use this record, reframe it, or move next. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader. Explain how a neutral court audience may receive the draft, harm framing, and requested relief. Follow your agent instructions exactly."
+      },
+      {
+        "step": 6,
+        "name": "Relief and Order Alignment Review",
+        "persona": "relief-and-order-alignment-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Relief and Order Alignment Counsel. Test whether the requested relief gives the court a coherent and enforceable path to act. Follow your agent instructions exactly."
+      },
+      {
+        "step": 7,
+        "name": "Strategic Options Review",
+        "persona": "strategic-options-architect",
+        "llm": "claude",
+        "model_profile": "strategy_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Strategic Options Architect. Identify lawful strategic options, status-quo leverage, procedural paths, and expert or evaluation ideas for attorney review. Follow your agent instructions exactly."
+      },
+      {
+        "step": 8,
+        "name": "Practical Resolution Review",
+        "persona": "practical-resolution-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_reviews",
+        "prompt_prefix": "You are the Practical Resolution Reviewer. Test whether the strategic options are workable, proportional, and administrable in the real world. Follow your agent instructions exactly."
+      },
+      {
+        "step": 9,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Surface only the strategic options and legal questions that are actually useful to counsel. Follow your agent instructions exactly."
+      }
+    ],
+    "review_document_reply": [
+      {
+        "step": 1,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Trial Fact Checker. Focus on factual support, overstatement, contradiction, and citation needs in this reply. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Review this reply for attack surfaces, quote risk, credibility risk, and safer framing. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader in judge mode. Review whether this reply is clear, restrained, and responsive. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Legal Writing Preservation Edits",
+        "persona": "legal-writing-preservation-editor",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_reviews",
+        "prompt_prefix": "You are the Legal Writing Preservation Editor. Propose only targeted edits worth making. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Prioritize findings and produce the attorney handoff. Follow your agent instructions exactly."
+      }
+    ],
+    "review_document_declaration": [
+      {
+        "step": 1,
+        "name": "Draft Mechanics Review",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Draft Mechanics Mode. Check declaration mechanics, numbering, signature, verification, exhibits, and references. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Trial Fact Checker. Review declaration facts for source support, overstatement, contradiction, and safe-use status. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Review this declaration for cross-examination risk, credibility risk, and attack surfaces. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Legal Writing Preservation Edits",
+        "persona": "legal-writing-preservation-editor",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_reviews",
+        "prompt_prefix": "You are the Legal Writing Preservation Editor. Propose only targeted declaration edits worth making. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Prioritize findings and produce the attorney handoff. Follow your agent instructions exactly."
+      }
+    ],
+    "review_document_proposed_order": [
+      {
+        "step": 1,
+        "name": "Draft Mechanics Review",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Draft Mechanics Mode. Check proposed-order caption, references, formatting, parties, dates, signature blocks, and attachments. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Relief and Order Alignment Review",
+        "persona": "relief-and-order-alignment-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Relief and Order Alignment Counsel. Review whether the proposed order matches the motion, declaration, prayer, and relief library. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader in commissioner mode. Review whether the proposed order is clear, fast to understand, and administrable. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Practical Resolution Review",
+        "persona": "practical-resolution-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Practical Resolution Reviewer. Test whether the proposed order gives the court a workable process to administer. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Prioritize findings and produce the attorney handoff. Follow your agent instructions exactly."
+      }
+    ],
+    "review_document_coparenting_communication": [
+      {
+        "step": 1,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Review this co-parenting communication for attack surfaces, admissions, tone risk, and quote risk. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader in evaluator_special_master mode. Review whether the communication is child-centered, practical, and credible. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Legal Writing Preservation Edits",
+        "persona": "legal-writing-preservation-editor",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_reviews",
+        "prompt_prefix": "You are the Legal Writing Preservation Editor. Propose only targeted communication edits that reduce risk and improve clarity. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Practical Resolution Review",
+        "persona": "practical-resolution-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "draft_plus_reviews",
+        "prompt_prefix": "You are the Practical Resolution Reviewer. Test whether the communication is likely to reduce or escalate conflict in practice. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Prioritize findings and produce the attorney handoff. Follow your agent instructions exactly."
+      }
+    ],
+    "triage_new_situation": [
+      {
+        "step": 1,
+        "name": "Situation Intake and Triage",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Situation Triage Mode. Turn the raw situation into a clean issue statement, identify the most relevant source buckets, and flag record-building gaps. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Chronology Construction",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Chronology Clerk. Build a short practical timeline, identify what happened, what is missing, and whether this is a one-off or part of a pattern. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Atomic Fact Extraction",
+        "persona": "atomic-fact-extractor",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Atomic Fact Extractor. Separate source-supported facts, user-reported facts, inferences, disputed points, and missing proof. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Explain why this situation may matter legally or strategically, what likely does not matter, and what questions should go to counsel. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Stress-test this situation for overreach, optics risk, missing proof, and how the other side would minimize or reframe it. Follow your agent instructions exactly."
+      },
+      {
+        "step": 6,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader. Explain how a court, Special Master, or neutral evaluator may see this situation, including proportionality and credibility concerns. Follow your agent instructions exactly."
+      },
+      {
+        "step": 7,
+        "name": "Relief and Order Alignment Review",
+        "persona": "relief-and-order-alignment-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are Relief and Order Alignment Counsel. Identify whether this issue ties to an existing order, requested relief, or record-building path, and flag when the ask is weak or mismatched. Follow your agent instructions exactly."
+      },
+      {
+        "step": 8,
+        "name": "Strategic Options Review",
+        "persona": "strategic-options-architect",
+        "llm": "claude",
+        "model_profile": "strategy_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Strategic Options Architect. Lay out pursue, preserve, and let-go options, including OFW-first, counsel-first, Special Master, and court paths where justified. Follow your agent instructions exactly."
+      },
+      {
+        "step": 9,
+        "name": "Practical Resolution Review",
+        "persona": "practical-resolution-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Practical Resolution Reviewer. Decide whether this should be pursued now, preserved for pattern, handled with OFW first, taken to counsel, taken to the Special Master, or let go. Follow your agent instructions exactly."
+      },
+      {
+        "step": 10,
+        "name": "Attorney Prep Questions",
+        "persona": "attorney-prep-questioner",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Attorney Prep Questioner. Produce only the narrow attorney questions that would change whether to act, wait, preserve, or escalate. Follow your agent instructions exactly."
+      },
+      {
+        "step": 11,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Make the recommendation, choose pursue, preserve, or let go, and tell the user what you would do next. Follow your agent instructions exactly."
+      }
+    ],
+    "brief_counsel": [
+      {
+        "step": 1,
+        "name": "Situation Intake and Triage",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Counsel Brief Mode. Turn the situation and matter record into a concise attorney-readable issue packet with relevant sources and missing materials. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Chronology Construction",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Chronology Clerk. Build the shortest chronology that counsel needs to understand sequence, turning points, and urgency. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Identify why counsel should care, what the plausible action paths are, and which points need authority or attorney judgment. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Strategic Options Review",
+        "persona": "strategic-options-architect",
+        "llm": "claude",
+        "model_profile": "strategy_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Strategic Options Architect. Frame the best counsel asks, action paths, and decision forks without flooding counsel with noise. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are Opposing Counsel. Stress-test the brief for weak claims, overreach, and facts that could backfire if presented to counsel as settled. Follow your agent instructions exactly."
+      },
+      {
+        "step": 6,
+        "name": "Attorney Prep Questions",
+        "persona": "attorney-prep-questioner",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Attorney Prep Questioner. Generate narrow, high-leverage questions for Kaitlyn or Jessika that change strategy, timing, or evidence needs. Follow your agent instructions exactly."
+      },
+      {
+        "step": 7,
+        "name": "Legal Writing Preservation Edits",
+        "persona": "legal-writing-preservation-editor",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Legal Writing Preservation Editor. Draft a candid, privilege-safe counsel brief that is concise, strategic, and copy-paste ready. Follow your agent instructions exactly."
+      },
+      {
+        "step": 8,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Deliver the final counsel brief, recommended ask, and specific attorney questions worth sending. Follow your agent instructions exactly."
+      }
+    ],
+    "triage_special_master": [
+      {
+        "step": 1,
+        "name": "Chronology Construction",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Chronology Clerk. Build the narrow timeline needed to decide whether this issue is ripe for the Special Master. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader in evaluator_special_master mode. Decide whether this looks reasonable, ripe, administrable, and within likely Special Master scope. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Practical Resolution Review",
+        "persona": "practical-resolution-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Practical Resolution Reviewer. Decide whether this belongs with the Special Master now, needs OFW first, needs more evidence, or should be preserved only. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are Opposing Counsel. Stress-test how this Special Master request could be framed as premature, petty, unsupported, or outside scope. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Relief and Order Alignment Review",
+        "persona": "relief-and-order-alignment-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are Relief and Order Alignment Counsel. Identify the order or decree hook, requested directive, and whether the ask is narrow and administrable enough for Special Master use. Follow your agent instructions exactly."
+      },
+      {
+        "step": 6,
+        "name": "Legal Writing Preservation Edits",
+        "persona": "legal-writing-preservation-editor",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Legal Writing Preservation Editor. Draft a concise Special Master message with issue, requested directive, timeline, prior attempt to resolve, evidence, and practical solution. Follow your agent instructions exactly."
+      },
+      {
+        "step": 7,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Decide whether to bring this to the Special Master, build more evidence, use OFW first, ask counsel first, preserve it, or let it go. Follow your agent instructions exactly."
+      }
+    ],
+    "draft_external_message": [
+      {
+        "step": 1,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are Opposing Counsel. Stress-test the proposed message for admissions, escalation risk, attack surfaces, and wording that will be quoted back later. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Neutral Court Reader. Adapt the message to the likely audience optics and decide what needs to stay internal, attorney-safe, or court-safe. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Practical Resolution Review",
+        "persona": "practical-resolution-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Practical Resolution Reviewer. Make the message brief, useful, and record-building, and say when the message should not be sent yet. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Legal Writing Preservation Edits",
+        "persona": "legal-writing-preservation-editor",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Legal Writing Preservation Editor. Produce the best copy-paste-ready external message for the named audience while preserving strong, source-supported language where appropriate. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Decide whether to send, revise, wait, or not send this message, and provide the final draft if sending is justified. Follow your agent instructions exactly."
+      }
+    ],
+    "build_evidence_packet": [
+      {
+        "step": 1,
+        "name": "Source Document Analysis",
+        "persona": "source-document-analyst",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Source Document Analyst. Identify which source types would actually prove or weaken this issue, and separate strong sources from weak, missing, or dangerous ones. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Situation Intake and Triage",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Evidence Packet Mode. Build the most practical source packet for the issue and identify what should stay out of court-facing packets. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Chronology Construction",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Chronology Clerk. Identify the key time window and which records/messages need to anchor it. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Trial Fact Checker. Separate what the packet can actually prove from what remains weak, disputed, inferred, or unsupported. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Relief and Order Alignment Review",
+        "persona": "relief-and-order-alignment-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are Relief and Order Alignment Counsel. Identify which evidence actually supports the likely requested directive or relief path. Follow your agent instructions exactly."
+      },
+      {
+        "step": 6,
+        "name": "Attorney Prep Questions",
+        "persona": "attorney-prep-questioner",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Attorney Prep Questioner. Ask only the evidence questions that would materially change the packet, escalation, or counsel brief. Follow your agent instructions exactly."
+      },
+      {
+        "step": 7,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Build the final evidence-packet recommendation, including what to gather, what is missing, what cuts against the user, and what should stay attorney-only. Follow your agent instructions exactly."
+      }
+    ],
+    "review_pattern": [
+      {
+        "step": 1,
+        "name": "Chronology Construction",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Chronology Clerk. Identify whether the described events form a recurring sequence or just isolated noise. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Atomic Fact Extraction",
+        "persona": "atomic-fact-extractor",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Atomic Fact Extractor. Identify the strongest and weakest recurring examples, keeping source strength and dispute status separate. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Trial Fact Checker. Decide which pattern examples are locked, noisy, weak, disputed, or not ready for external use. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Explain what the pattern supports, what it does not support, and whether it is ripe enough to raise now. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are Opposing Counsel. Identify how the other side would call this pattern anecdotal, reactive, selective, or weak. Follow your agent instructions exactly."
+      },
+      {
+        "step": 6,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Neutral Court Reader. Decide whether the pattern reads as meaningful, emerging, noisy, or dangerous to overstate. Follow your agent instructions exactly."
+      },
+      {
+        "step": 7,
+        "name": "Strategic Options Review",
+        "persona": "strategic-options-architect",
+        "llm": "claude",
+        "model_profile": "strategy_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Strategic Options Architect. Recommend whether to raise the pattern now, preserve it for future MTE or Special Master use, or leave it alone for now. Follow your agent instructions exactly."
+      },
+      {
+        "step": 8,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Decide whether this is a strong pattern, an emerging pattern to preserve, noisy material to drop, or a dangerous pattern for the user to overplay. Follow your agent instructions exactly."
+      }
+    ],
+    "fact_lock": [
+      {
+        "step": 1,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Trial Fact Checker. Classify important facts as locked, likely but needs source, user recollection, inference, disputed, unsupported, or not safe for external use yet. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Source Document Analysis",
+        "persona": "source-document-analyst",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Source Document Analyst. Identify the best source anchors for each important fact and the exact source gap where one is missing. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Legal Authority Scholar Review",
+        "persona": "legal-authority-scholar",
+        "llm": "claude",
+        "model_profile": "legal_research",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Legal Authority Scholar. Flag any legal propositions that need authority before external use and separate them from factual claims. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are Opposing Counsel. Identify which facts are most vulnerable to challenge if stated too strongly or too soon. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Produce the fact-lock table, safe wording, unsafe wording, and do-not-use-yet calls. Follow your agent instructions exactly."
+      }
+    ],
+    "authority_check": [
+      {
+        "step": 1,
+        "name": "Legal Authority Scholar Review",
+        "persona": "legal-authority-scholar",
+        "llm": "claude",
+        "model_profile": "legal_research",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Legal Authority Scholar. Identify legal propositions, summarize supplied authority carefully, flag missing authority, and state when currentness or citator status is not verified. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Explain what the authority actually supports, what still needs attorney confirmation, and what claims should not be made yet. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Deliver an authority-check memo that is honest about missing authority and precise about the attorney questions that matter. Follow your agent instructions exactly."
+      }
+    ],
+    "prep_hearing_or_call": [
+      {
+        "step": 1,
+        "name": "Situation Intake and Triage",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Prep Mode. Identify the practical materials the user should have open and the narrow issue to prepare for. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Chronology Construction",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Chronology Clerk. Build the shortest sequence the user should keep straight in the call, hearing, or conference. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Family Law Attorney Review",
+        "persona": "family-law-attorney-reviewer",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Family Law Attorney Reviewer. Identify the top legal or structural issues that should shape the conversation or hearing. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Opposing Counsel Review",
+        "persona": "opposing-counsel",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are Opposing Counsel. Forecast likely pushback, hard questions, and avoidable self-inflicted problems. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Neutral Court Reader. Identify what will sound reasonable, what may sound reactive, and what should stay unsaid. Follow your agent instructions exactly."
+      },
+      {
+        "step": 6,
+        "name": "Strategic Options Review",
+        "persona": "strategic-options-architect",
+        "llm": "claude",
+        "model_profile": "strategy_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Strategic Options Architect. Define the best outcome, fallback position, and turning-point questions for the conversation. Follow your agent instructions exactly."
+      },
+      {
+        "step": 7,
+        "name": "Attorney Prep Questions",
+        "persona": "attorney-prep-questioner",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Attorney Prep Questioner. Produce the highest-leverage questions to ask during the call, hearing, or Special Master conference. Follow your agent instructions exactly."
+      },
+      {
+        "step": 8,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Deliver practical prep: goal, top points, likely pushback, what not to say, desired outcome, and fallback position. Follow your agent instructions exactly."
+      }
+    ],
+    "journal_entry": [
+      {
+        "step": 1,
+        "name": "Situation Intake and Triage",
+        "persona": "litigation-paralegal",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Litigation Paralegal in Journal Mode. Turn the event into a clean record entry with date, people, category, source type, and practical metadata. Follow your agent instructions exactly."
+      },
+      {
+        "step": 2,
+        "name": "Chronology Construction",
+        "persona": "chronology-clerk",
+        "llm": "claude",
+        "model_profile": "structured_extraction",
+        "context_mode": "situation_plus_knowledge",
+        "prompt_prefix": "You are the Chronology Clerk. Place the event in sequence and flag whether the date is exact or approximate. Follow your agent instructions exactly."
+      },
+      {
+        "step": 3,
+        "name": "Trial Fact Check",
+        "persona": "trial-fact-checker",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Trial Fact Checker. Separate source-backed facts from recollection, inference, disputed points, and verification needs before they go into the journal entry. Follow your agent instructions exactly."
+      },
+      {
+        "step": 4,
+        "name": "Neutral Court Reader Review",
+        "persona": "neutral-court-reader",
+        "llm": "claude",
+        "model_profile": "review_reasoning",
+        "context_mode": "situation_plus_reviews",
+        "prompt_prefix": "You are the Neutral Court Reader. Add optics and neutrality notes so the entry preserves useful context without overstating. Follow your agent instructions exactly."
+      },
+      {
+        "step": 5,
+        "name": "Managing Partner Final Synthesis",
+        "persona": "managing-partner-final-synthesizer",
+        "llm": "claude",
+        "model_profile": "final_synthesis",
+        "context_mode": "all_reviews",
+        "prompt_prefix": "You are the Managing Partner Final Synthesizer. Produce a clean post-event journal entry with significance, source anchors, caveats, and future pattern value. Follow your agent instructions exactly."
       }
     ]
-  },
-  "vernhole": {
-    "default_council": "random",
-    "min": 3
   },
   "timeouts": {
     "pipeline_step": 1200,

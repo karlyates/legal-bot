@@ -45,7 +45,7 @@ Here is the task breakdown for the project.
 - Hole subcommand works
 **Complexity:** L
 **Dependencies:** Task 1, Task 2
-**Files:** cmd/vern/main.go, cmd/vern/run.go
+**Files:** cmd/legal-bot/main.go, cmd/legal-bot/run.go
 
 ## Dependency Graph
 

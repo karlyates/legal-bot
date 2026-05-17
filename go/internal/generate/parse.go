@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jdonohoo/vern-bot/go/internal/persona"
+	"github.com/jdonohoo/legal-bot/go/internal/persona"
 )
 
 // GeneratedPersona holds the parsed output from the LLM.

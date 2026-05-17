@@ -12,7 +12,7 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/jdonohoo/vern-bot/go/internal/config"
+	"github.com/jdonohoo/legal-bot/go/internal/config"
 )
 
 type settingsState int
@@ -416,14 +416,14 @@ func (m SettingsModel) saveConfig() error {
 	configPath := m.cfg.SourcePath
 
 	// If config came from embedded/hardcoded (no source path) or from the
-	// project default (config.default.json — shouldn't be modified), fall back
+	// project default (config.default.json - shouldn't be modified), fall back
 	// to the standalone user config location.
 	if configPath == "" || filepath.Base(configPath) == "config.default.json" {
 		home, err := os.UserHomeDir()
 		if err != nil {
 			return fmt.Errorf("get home directory: %w", err)
 		}
-		configPath = filepath.Join(home, ".config", "vern", "config.json")
+		configPath = filepath.Join(home, ".config", "legal-bot", "config.json")
 	}
 
 	if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {

@@ -16,8 +16,8 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/jdonohoo/vern-bot/go/internal/config"
-	"github.com/jdonohoo/vern-bot/go/internal/pipeline"
+	"github.com/jdonohoo/legal-bot/go/internal/config"
+	"github.com/jdonohoo/legal-bot/go/internal/pipeline"
 )
 
 type oracleState int
@@ -841,7 +841,7 @@ func (m OracleModel) confirmSummary() string {
 		b.WriteString(fmt.Sprintf("  %s  %s\n", label("Idea:"), dim(idea)))
 	}
 
-	b.WriteString("\n  " + lipgloss.NewStyle().Foreground(colorMuted).Render(strings.Repeat("─", 40)) + "\n\n")
+	b.WriteString("\n  " + lipgloss.NewStyle().Foreground(colorMuted).Render(strings.Repeat("-", 40)) + "\n\n")
 	b.WriteString(fmt.Sprintf("  %s  %s\n", label("LLM Mode:"), val(m.llmModeLabel())))
 
 	return b.String()

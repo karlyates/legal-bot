@@ -1,0 +1,495 @@
+C:\GIT\legal-bot\go\internal\pipeline\events.go:6: "github.com/jdonohoo/legal-bot/go/internal/council"
+C:\GIT\legal-bot\go\internal\pipeline\events.go:16: OnVernStart(idx int, vern council.Vern, llm string)
+C:\GIT\legal-bot\go\internal\pipeline\events.go:17: OnVernComplete(idx int, result VernHoleResult)
+C:\GIT\legal-bot\go\internal\pipeline\events.go:43: func (h *ConsoleHandler) OnVernStart(idx int, vern council.Vern, llm string) {
+C:\GIT\legal-bot\go\internal\pipeline\events.go:44: fmt.Printf(">>> Vern %d: %s (%s)\n", idx+1, vern.Name, llm)
+C:\GIT\legal-bot\go\internal\pipeline\events.go:47: func (h *ConsoleHandler) OnVernComplete(idx int, result VernHoleResult) {
+C:\GIT\legal-bot\go\internal\pipeline\events.go:49: fmt.Printf("    OK: %s\n", result.Vern.ID)
+C:\GIT\legal-bot\go\internal\pipeline\events.go:51: fmt.Printf("    FAILED: %s (exit %d)\n", result.Vern.ID, result.ExitCode)
+C:\GIT\legal-bot\go\internal\pipeline\events.go:74: fmt.Println("=== VERN DISCOVERY PIPELINE ===")
+C:\GIT\legal-bot\go\internal\pipeline\events.go:77: fmt.Println("Output: Vern Task Spec (VTS)")
+C:\GIT\legal-bot\go\internal\pipeline\events.go:107: EventVernStart        = "vern_start"
+C:\GIT\legal-bot\go\internal\pipeline\events.go:108: EventVernComplete     = "vern_complete"
+C:\GIT\legal-bot\go\internal\pipeline\events.go:133: type VernStartData struct {
+C:\GIT\legal-bot\go\internal\pipeline\events.go:135: Vern  council.Vern
+C:\GIT\legal-bot\go\internal\pipeline\events.go:172: func (h *ChannelHandler) OnVernStart(idx int, vern council.Vern, llm string) {
+C:\GIT\legal-bot\go\internal\pipeline\events.go:173: h.Events <- Event{Type: EventVernStart, Data: VernStartData{Index: idx, Vern: vern, LLM: llm}}
+C:\GIT\legal-bot\go\internal\pipeline\events.go:176: func (h *ChannelHandler) OnVernComplete(idx int, result VernHoleResult) {
+C:\GIT\legal-bot\go\internal\pipeline\events.go:177: h.Events <- Event{Type: EventVernComplete, Data: result}
+C:\GIT\legal-bot\go\internal\pipeline\historian.go:12: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\internal\pipeline\historian.go:13: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\internal\pipeline\historian.go:99: prompt := fmt.Sprintf(`You are Historian Vern. You read everything. Your job is to produce a DEEP, EXHAUSTIVE index - not a summary.
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:12: "github.com/jdonohoo/legal-bot/go/internal/council"
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:13: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:16: // VernHoleOptions configures a VernHole run.
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:17: type VernHoleOptions struct {
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:27: OverrideLLM  string       // override all Vern LLMs (single_llm mode)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:31: // VernHoleResult holds per-Vern results.
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:32: type VernHoleResult struct {
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:34: Vern       council.Vern
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:41: // vernOutput prints to stdout in CLI mode, or routes to OnLog in TUI mode.
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:42: func vernOutput(opts *VernHoleOptions, format string, args ...interface{}) {
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:54: // RunVernHole executes a VernHole session with parallel Vern execution.
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:55: func RunVernHole(opts VernHoleOptions) error {
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:68: numVerns := len(selected)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:75: contextBlock = "\n\n=== PRIOR DISCOVERY PLAN ===\nThe following plan was synthesised from a full Vern Discovery Pipeline run on this idea. Use it as context, but bring your own unique perspective. Challenge it, build on it, tear it apart - whatever your persona demands.\n\n" + string(data) + "\n\n=== END PRIOR DISCOVERY PLAN ==="
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:76: vernOutput(&opts, "Context loaded from: %s\n\n", opts.Context)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:81: vernOutput(&opts, "=== WELCOME TO THE VERNHOLE ===\n")
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:82: vernOutput(&opts, "Idea: %s\n", opts.Idea)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:83: vernOutput(&opts, "Roster: %d Verns available\n", len(roster))
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:85: vernOutput(&opts, "Council: %s\n", councilName)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:87: vernOutput(&opts, "Summoning %d Verns...\n\n", numVerns)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:98: // Run all Verns in parallel
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:99: results := make([]VernHoleResult, numVerns)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:104: go func(idx int, vern council.Vern) {
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:107: outputFile := filepath.Join(opts.OutputDir, fmt.Sprintf("%02d-%s.md", idx+1, vern.ID))
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:111: vernLLM := vern.LLM
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:113: vernLLM = opts.OverrideLLM
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:116: vernOutput(&opts, ">>> Vern %d/%d: %s (%s)\n", idx+1, numVerns, vern.Name, vernLLM)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:120: LLM:        vernLLM,
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:123: Persona:    vern.ID,
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:128: r := VernHoleResult{
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:130: Vern:       vern,
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:138: vernOutput(&opts, "    OK (%s, %dB, Vern %d/%d)\n", vernLLM, len(result.Output), idx+1, numVerns)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:152: vernOutput(&opts, "    FAILED (%s, exit %d, Vern %d/%d): %s - excluding from synthesis\n", vern.ID, exitCode, idx+1, numVerns, errSnippet)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:154: vernOutput(&opts, "    FAILED (%s, exit %d, Vern %d/%d) - excluding from synthesis\n", vern.ID, exitCode, idx+1, numVerns)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:167: var failedVerns []string
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:171: allOutputs.WriteString(fmt.Sprintf("\n\n=== %s ===\n%s", r.Vern.Desc, r.Output))
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:174: failedVerns = append(failedVerns, r.Vern.ID)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:178: if len(failedVerns) > 0 {
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:179: vernOutput(&opts, "\n>>> Failed Verns: %s\n\n", strings.Join(failedVerns, " "))
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:184: vernOutput(&opts, ">>> Synthesizing the chaos (%d/%d Verns succeeded)...\n", succeededCount, numVerns)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:187: if len(failedVerns) > 0 {
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:188: missingNote = fmt.Sprintf("\n\nNOTE: The following Verns failed and their perspectives are missing from this synthesis: %s\nConsider what perspectives might be absent and note any gaps.", strings.Join(failedVerns, " "))
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:191: synthesisPrompt := fmt.Sprintf("Synthesize these diverse perspectives into actionable insights. Identify common themes, interesting contradictions, and recommended paths forward.\n\nORIGINAL IDEA: %s\n%s\nTHE VERNS HAVE SPOKEN:\n%s%s",
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:205: Persona:    "vernhole-orchestrator",
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:213: vernOutput(&opts, ">>> All Verns failed - skipping synthesis\n")
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:214: vernOutput(&opts, "No perspectives to synthesize.\n")
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:218: vernOutput(&opts, "\n")
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:219: vernOutput(&opts, "=== THE VERNHOLE HAS SPOKEN ===\n")
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:220: vernOutput(&opts, "Files created in: %s\n", opts.OutputDir)
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:221: if len(failedVerns) > 0 {
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:222: vernOutput(&opts, "Failed: %s\n", strings.Join(failedVerns, " "))
+C:\GIT\legal-bot\go\internal\pipeline\legalbot_council.go:226: return fmt.Errorf("all Verns failed")
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:11: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:12: "github.com/jdonohoo/legal-bot/go/internal/vts"
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:53: // RunOracleConsult generates an Oracle vision from VernHole synthesis + VTS tasks.
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:62: oracleLog(opts.OnLog, "Reading the VernHole synthesis and VTS tasks...\n")
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:84: instructions = `Review the existing VTS tasks in light of the Vern council's synthesis. Recommend modifications: new tasks to add, tasks to modify, tasks to remove, dependency changes, complexity reassessments, and missing acceptance criteria.`
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:86: instructions = `The Vern council produced a synthesis with analysis and recommendations, but no VTS task files were generated. Your job is to CREATE tasks from the synthesis. Extract every actionable recommendation from the synthesis and turn it into a concrete task with proper dependencies, acceptance criteria, and complexity assessments. Do not simply observe that tasks are missing - produce them.`
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:89: oraclePrompt := fmt.Sprintf(`You are Oracle Vern. The ancient seer who reads the patterns in the Vern council's chaos.
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:130: VERNHOLE SYNTHESIS:
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:178: // RunOracleApply has Architect Vern rewrite VTS tasks based on Oracle's vision.
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:186: oracleLog(opts.OnLog, "Architect Vern is rewriting VTS tasks...\n")
+C:\GIT\legal-bot\go\internal\pipeline\oracle.go:199: architectPrompt := fmt.Sprintf(`You are Architect Vern. The Oracle has spoken. Apply the Oracle's vision to produce an updated task breakdown.
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:12: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:13: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:14: "github.com/jdonohoo/legal-bot/go/internal/vts"
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:28: VernHoleCount     int
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:29: VernHoleCouncil   string
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:145: p.printf("=== VERN DISCOVERY PIPELINE ===\n")
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:153: p.printf("Output: Vern Task Spec (VTS)\n")
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:491: // VernHole
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:493: p.printf("\n>>> Skipping VernHole (pipeline had %d failed step(s): %v)\n", len(failedSteps), failedSteps)
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:494: p.log("VernHole: SKIPPED (%d pipeline step(s) failed)", len(failedSteps))
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:495: } else if opts.VernHoleCount > 0 || opts.VernHoleCouncil != "" {
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:496: p.runVernHole()
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:617: func (p *Pipeline) runVernHole() {
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:635: p.printf("=== ENTERING THE VERNHOLE ===\n")
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:638: vernholeDir := filepath.Join(opts.DiscoveryDir, "vernhole")
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:639: os.MkdirAll(vernholeDir, 0755)
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:641: err := RunVernHole(VernHoleOptions{
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:644: OutputDir:    vernholeDir,
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:645: Council:      opts.VernHoleCouncil,
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:646: Count:        opts.VernHoleCount,
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:655: p.printf("\nWARNING: VernHole failed: %v\n", err)
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:656: p.log("VernHole: FAILED (%v)", err)
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:657: p.writeStatus("complete_vernhole_failed", nil)
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:661: p.log("VernHole: OK")
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:665: p.runOracle(vernholeDir)
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:671: func (p *Pipeline) runOracle(vernholeDir string) {
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:680: SynthesisDir: vernholeDir,
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:696: // Auto-apply: Architect Vern rewrites VTS based on Oracle's vision
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:861: // VernHole info
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:862: if phase == "complete" || phase == "complete_vernhole_failed" {
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:863: b.WriteString("\n## VernHole\n\n")
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:864: if phase == "complete_vernhole_failed" {
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:867: vernholeDir := filepath.Join(p.opts.DiscoveryDir, "vernhole")
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:868: entries, err := os.ReadDir(vernholeDir)
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:871: b.WriteString(fmt.Sprintf("**Council:** %s\n", p.opts.VernHoleCouncil))
+C:\GIT\legal-bot\go\internal\pipeline\pipeline.go:875: size := fileSize(filepath.Join(vernholeDir, e.Name()))
+C:\GIT\legal-bot\go\internal\council\selection.go:12: "github.com/jdonohoo/legal-bot/go/internal/embedded"
+C:\GIT\legal-bot\go\internal\council\selection.go:13: "github.com/jdonohoo/legal-bot/go/internal/persona"
+C:\GIT\legal-bot\go\internal\council\selection.go:16: // Vern represents a persona in the roster.
+C:\GIT\legal-bot\go\internal\council\selection.go:17: type Vern struct {
+C:\GIT\legal-bot\go\internal\council\selection.go:19: Name string // display name (e.g. "Ketamine Vern")
+C:\GIT\legal-bot\go\internal\council\selection.go:26: // Skips vernhole-orchestrator and oracle (pipeline-only personas).
+C:\GIT\legal-bot\go\internal\council\selection.go:27: func ScanRoster(agentsDir string) []Vern {
+C:\GIT\legal-bot\go\internal\council\selection.go:29: "vernhole-orchestrator": true,
+C:\GIT\legal-bot\go\internal\council\selection.go:40: var roster []Vern
+C:\GIT\legal-bot\go\internal\council\selection.go:59: roster = append(roster, Vern{
+C:\GIT\legal-bot\go\internal\council\selection.go:76: func scanEmbeddedRoster(skip map[string]bool) []Vern {
+C:\GIT\legal-bot\go\internal\council\selection.go:78: var roster []Vern
+C:\GIT\legal-bot\go\internal\council\selection.go:95: roster = append(roster, Vern{ID: name, Name: displayName, LLM: llm, Desc: desc})
+C:\GIT\legal-bot\go\internal\council\selection.go:104: // ResolveCouncil selects Verns based on a council tier name (or bare number).
+C:\GIT\legal-bot\go\internal\council\selection.go:105: // Returns the selected Verns and the council display name.
+C:\GIT\legal-bot\go\internal\council\selection.go:106: func ResolveCouncil(tierName string, roster []Vern, minVerns int) (selected []Vern, displayName string) {
+C:\GIT\legal-bot\go\internal\council\selection.go:107: if minVerns <= 0 {
+C:\GIT\legal-bot\go\internal\council\selection.go:108: minVerns = 3
+C:\GIT\legal-bot\go\internal\council\selection.go:115: count := clamp(n, minVerns, len(roster))
+C:\GIT\legal-bot\go\internal\council\selection.go:129: return append([]Vern{}, roster...), displayName
+C:\GIT\legal-bot\go\internal\council\selection.go:132: count := rand.Intn(len(roster)-minVerns+1) + minVerns
+C:\GIT\legal-bot\go\internal\council\selection.go:137: var coreVerns []Vern
+C:\GIT\legal-bot\go\internal\council\selection.go:140: if v, ok := findVern(roster, id); ok {
+C:\GIT\legal-bot\go\internal\council\selection.go:141: coreVerns = append(coreVerns, v)
+C:\GIT\legal-bot\go\internal\council\selection.go:147: return coreVerns, displayName
+C:\GIT\legal-bot\go\internal\council\selection.go:152: if target <= len(coreVerns) {
+C:\GIT\legal-bot\go\internal\council\selection.go:153: return coreVerns, displayName
+C:\GIT\legal-bot\go\internal\council\selection.go:158: fillCount := target - len(coreVerns)
+C:\GIT\legal-bot\go\internal\council\selection.go:163: selected = append(coreVerns, shuffled[:fillCount]...)
+C:\GIT\legal-bot\go\internal\council\selection.go:167: func findVern(roster []Vern, id string) (Vern, bool) {
+C:\GIT\legal-bot\go\internal\council\selection.go:173: return Vern{}, false
+C:\GIT\legal-bot\go\internal\council\selection.go:176: func filterOut(roster []Vern, exclude map[string]bool) []Vern {
+C:\GIT\legal-bot\go\internal\council\selection.go:177: var result []Vern
+C:\GIT\legal-bot\go\internal\council\selection.go:186: func randomSelect(roster []Vern, count int) []Vern {
+C:\GIT\legal-bot\go\internal\council\selection.go:188: shuffled := make([]Vern, len(roster))
+C:\GIT\legal-bot\go\internal\council\selection.go:194: var result []Vern
+C:\GIT\legal-bot\go\internal\council\selection.go:211: func hardcodedRoster() []Vern {
+C:\GIT\legal-bot\go\internal\council\selection.go:212: return []Vern{
+C:\GIT\legal-bot\go\internal\council\selection.go:213: {ID: "academic", Name: "Academic Vern", LLM: "claude", Desc: "needs more research, cites sources"},
+C:\GIT\legal-bot\go\internal\council\selection.go:214: {ID: "architect", Name: "Architect Vern", LLM: "claude", Desc: "systems design, blueprints before builds"},
+C:\GIT\legal-bot\go\internal\council\selection.go:215: {ID: "enterprise", Name: "Enterprise Vern", LLM: "claude", Desc: "needs 6 meetings and a committee"},
+C:\GIT\legal-bot\go\internal\council\selection.go:216: {ID: "great", Name: "Vernile the Great", LLM: "claude", Desc: "excellence incarnate, elegant solutions"},
+C:\GIT\legal-bot\go\internal\council\selection.go:217: {ID: "inverse", Name: "Inverse Vern", LLM: "claude", Desc: "contrarian takes only"},
+C:\GIT\legal-bot\go\internal\council\selection.go:218: {ID: "ketamine", Name: "Ketamine Vern", LLM: "claude", Desc: "multi-dimensional vibes, sees patterns"},
+C:\GIT\legal-bot\go\internal\council\selection.go:219: {ID: "mediocre", Name: "Vern the Mediocre", LLM: "claude", Desc: "scrappy speed demon, ship it fast"},
+C:\GIT\legal-bot\go\internal\council\selection.go:220: {ID: "mighty", Name: "MightyVern", LLM: "claude", Desc: "raw power, comprehensive analysis"},
+C:\GIT\legal-bot\go\internal\council\selection.go:221: {ID: "nyquil", Name: "Nyquil Vern", LLM: "claude", Desc: "brilliant but brief, NyQuil kicking in"},
+C:\GIT\legal-bot\go\internal\council\selection.go:222: {ID: "optimist", Name: "Optimist Vern", LLM: "claude", Desc: "everything will be fine!"},
+C:\GIT\legal-bot\go\internal\council\selection.go:223: {ID: "paranoid", Name: "Paranoid Vern", LLM: "claude", Desc: "what could possibly go wrong?"},
+C:\GIT\legal-bot\go\internal\council\selection.go:224: {ID: "retro", Name: "Retro Vern", LLM: "claude", Desc: "we solved this with cron in 2004"},
+C:\GIT\legal-bot\go\internal\council\selection.go:225: {ID: "startup", Name: "Startup Vern", LLM: "claude", Desc: "MVP or die, move fast"},
+C:\GIT\legal-bot\go\internal\council\selection.go:226: {ID: "ux", Name: "UX Vern", LLM: "claude", Desc: "can the user find the button?"},
+C:\GIT\legal-bot\go\internal\council\selection.go:227: {ID: "yolo", Name: "YOLO Vern", LLM: "claude", Desc: "full send, no guardrails"},
+C:\GIT\legal-bot\go\internal\council\selection_test.go:7: func testRoster() []Vern {
+C:\GIT\legal-bot\go\internal\council\selection_test.go:43: if name != "The Full Vern Experience" {
+C:\GIT\legal-bot\go\internal\council\selection_test.go:102: roster := ScanRoster("/Users/justin/projects/jdonohoo/legal-bot/agents")
+C:\GIT\legal-bot\go\internal\council\selection_test.go:106: // Should NOT contain oracle or vernhole-orchestrator
+C:\GIT\legal-bot\go\internal\council\selection_test.go:108: if v.ID == "oracle" || v.ID == "vernhole-orchestrator" {
+C:\GIT\legal-bot\go\internal\council\tiers.go:51: Display: "The Full Vern Experience",
+C:\GIT\legal-bot\go\internal\generate\generate.go:13: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\internal\generate\generate.go:14: "github.com/jdonohoo/legal-bot/go/internal/persona"
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:14: description: Test Vern - A test persona for validation.
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:19: You are Test Vern.
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:33: description: Test Vern - A test persona for validation.
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:37: # Test Vern
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:45: description: Test Vern - A test persona for validation.
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:49: # Test Vern
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:68: if !strings.Contains(gen.Command, "description: Test Vern") {
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:109: description: Test Vern - Testing.
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:114: You are Test Vern.
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:122: description: Test Vern - Testing.
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:126: # Test Vern
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:134: description: Test Vern - Testing.
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:138: # Test Vern
+C:\GIT\legal-bot\go\internal\generate\generate_test.go:146: -- Test Vern (assertions are just vibes)
+C:\GIT\legal-bot\go\internal\generate\parse.go:7: "github.com/jdonohoo/legal-bot/go/internal/persona"
+C:\GIT\legal-bot\go\internal\generate\update.go:23: tableRow := fmt.Sprintf("| %s | `/vern:%s` | %s |", aliasStr, name, desc)
+C:\GIT\legal-bot\go\internal\generate\update.go:31: routingEntry := fmt.Sprintf("- `%s` ? invoke `/vern:%s`", routingAliases, name)
+C:\GIT\legal-bot\go\internal\generate\update.go:93: // extractPersonaName pulls the persona name from a table row like "| `architect` / `arch` / `ar` | `/vern:architect` | ... |"
+C:\GIT\legal-bot\go\internal\generate\update.go:95: // Look for /vern:NAME pattern
+C:\GIT\legal-bot\go\internal\generate\update.go:96: re := regexp.MustCompile(`/vern:([a-z-]+)`)
+C:\GIT\legal-bot\go\internal\generate\update.go:154: // extractRouteName pulls the first alias from a routing entry like "- `architect` / `arch` / `ar` ? invoke `/vern:architect`"
+C:\GIT\legal-bot\go\internal\generate\update.go:156: re := regexp.MustCompile("? invoke `/vern:([a-z-]+)`")
+C:\GIT\legal-bot\go\internal\generate\update.go:185: // "  /vern:%-17s %-8s- %s"
+C:\GIT\legal-bot\go\internal\generate\update.go:186: newLine := fmt.Sprintf("  /vern:%-17s%-8s- %s", name+" <task>", modelDisplay, shortDesc)
+C:\GIT\legal-bot\go\internal\generate\update.go:204: if strings.HasPrefix(trimmed, "/vern:") {
+C:\GIT\legal-bot\go\internal\generate\update.go:206: } else if trimmed != "" && !strings.HasPrefix(trimmed, "/vern:") {
+C:\GIT\legal-bot\go\internal\generate\update.go:258: // extractHelpName pulls the persona name from a help line like "  /vern:inverse <task>     Sonnet ..."
+C:\GIT\legal-bot\go\internal\generate\update.go:260: re := regexp.MustCompile(`/vern:([a-z-]+)`)
+C:\GIT\legal-bot\go\internal\generate\update.go:334: // UpdateHardcodedRoster inserts a new Vern entry into the hardcodedRoster() function in selection.go.
+C:\GIT\legal-bot\go\internal\generate\update.go:348: // Find return []Vern{
+C:\GIT\legal-bot\go\internal\generate\update.go:349: returnIdx := strings.Index(content[funcIdx:], "return []Vern{")
+C:\GIT\legal-bot\go\internal\generate\update.go:351: return fmt.Errorf("return []Vern{ not found in hardcodedRoster")
+C:\GIT\legal-bot\go\internal\generate\update.go:357: sliceStart := returnIdx + len("return []Vern{")
+C:\GIT\legal-bot\go\internal\generate\update.go:436: "great": true, "vernile": true, "g": true,
+C:\GIT\legal-bot\go\internal\tobeads\importer.go:10: "github.com/jdonohoo/legal-bot/go/internal/vts"
+C:\GIT\legal-bot\go\internal\tobeads\normalizer.go:7: "github.com/jdonohoo/legal-bot/go/internal/vts"
+C:\GIT\legal-bot\go\internal\tobeads\normalizer_test.go:7: "github.com/jdonohoo/legal-bot/go/internal/vts"
+C:\GIT\legal-bot\go\internal\tobeads\preflight.go:7: "github.com/jdonohoo/legal-bot/go/internal/vts"
+C:\GIT\legal-bot\go\internal\tobeads\preflight_test.go:7: "github.com/jdonohoo/legal-bot/go/internal/vts"
+C:\GIT\legal-bot\go\internal\tobeads\testdata\golden\vts-004-executor.md:6: owner: "vern"
+C:\GIT\legal-bot\go\internal\tui\app.go:81: resp, err := client.Get("https://api.github.com/repos/jdonohoo/legal-bot/releases/latest")
+C:\GIT\legal-bot\go\internal\tui\app_test.go:117: {">>> Vern 1: Architect (claude)", "Vern 1"},
+C:\GIT\legal-bot\go\internal\tui\app_test.go:118: {">>> Vern 2: FAILED", "FAILED"},
+C:\GIT\legal-bot\go\internal\tui\app_test.go:119: {">>> Vern 3: SKIPPING", "SKIPPING"},
+C:\GIT\legal-bot\go\internal\tui\celebrate.go:25: "All Verns survived the pipeline. Barely.",
+C:\GIT\legal-bot\go\internal\tui\celebrate.go:28: "vernhole": {
+C:\GIT\legal-bot\go\internal\tui\celebrate.go:29: "The VernHole has spoken!",
+C:\GIT\legal-bot\go\internal\tui\celebrate_test.go:115: c.Start("vernhole", 120)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:18: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\internal\tui\discovery.go:19: "github.com/jdonohoo/legal-bot/go/internal/pipeline"
+C:\GIT\legal-bot\go\internal\tui\discovery.go:22: // vernStatus tracks an individual Vern's async state in the VernHole phase.
+C:\GIT\legal-bot\go\internal\tui\discovery.go:23: type vernStatus struct {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:25: desc   string // display name from log line (e.g. "Ketamine Vern")
+C:\GIT\legal-bot\go\internal\tui\discovery.go:53: vernhole     string
+C:\GIT\legal-bot\go\internal\tui\discovery.go:103: runningPhase  string // "pipeline", "vernhole", "oracle"
+C:\GIT\legal-bot\go\internal\tui\discovery.go:106: // VernHole phase tracking (async - all Verns run in parallel)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:107: vernRoster     map[int]*vernStatus // keyed by Vern number (1-based)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:108: vernsCompleted int
+C:\GIT\legal-bot\go\internal\tui\discovery.go:109: totalVerns     int
+C:\GIT\legal-bot\go\internal\tui\discovery.go:132: vernhole:     "full",
+C:\GIT\legal-bot\go\internal\tui\discovery.go:181: vernhole:     "full",
+C:\GIT\legal-bot\go\internal\tui\discovery.go:269: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\discovery.go:294: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\discovery.go:300: for _, sub := range []string{"output", "vernhole"} {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:382: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\discovery.go:420: Title("Run VernHole council after pipeline?").
+C:\GIT\legal-bot\go\internal\tui\discovery.go:421: Options(VernHoleOptions...).
+C:\GIT\legal-bot\go\internal\tui\discovery.go:422: Height(len(VernHoleOptions)+1).
+C:\GIT\legal-bot\go\internal\tui\discovery.go:423: Value(&v.vernhole),
+C:\GIT\legal-bot\go\internal\tui\discovery.go:427: Title("Consult the Oracle after VernHole?").
+C:\GIT\legal-bot\go\internal\tui\discovery.go:428: Description("Oracle Vern reads the council's chaos and finds the signal").
+C:\GIT\legal-bot\go\internal\tui\discovery.go:432: ).WithHideFunc(func() bool { return v.vernhole == "" }),
+C:\GIT\legal-bot\go\internal\tui\discovery.go:438: ).WithHideFunc(func() bool { return !v.oracle || v.vernhole == "" }),
+C:\GIT\legal-bot\go\internal\tui\discovery.go:451: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\discovery.go:502: if strings.Contains(upper, "ENTERING THE VERNHOLE") {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:503: m.runningPhase = "vernhole"
+C:\GIT\legal-bot\go\internal\tui\discovery.go:506: // VernHole just finished - fire ephemeral celebration
+C:\GIT\legal-bot\go\internal\tui\discovery.go:507: m.celebration.StartEphemeral("vernhole", m.width)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:545: // VernHole phase: track Vern personas (async - all run in parallel)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:546: if m.runningPhase == "vernhole" {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:547: if strings.HasPrefix(line, ">>> Vern ") {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:548: // Parse ">>> Vern N/Total: Description (llm)"
+C:\GIT\legal-bot\go\internal\tui\discovery.go:549: rest := strings.TrimPrefix(line, ">>> Vern ")
+C:\GIT\legal-bot\go\internal\tui\discovery.go:550: if num, total, desc, llmName, ok := parseVernLine(rest); ok {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:551: if m.vernRoster == nil {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:552: m.vernRoster = make(map[int]*vernStatus)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:554: m.totalVerns = total
+C:\GIT\legal-bot\go\internal\tui\discovery.go:555: m.vernRoster[num] = &vernStatus{
+C:\GIT\legal-bot\go\internal\tui\discovery.go:562: } else if strings.Contains(upper, "VERN ") && (strings.Contains(upper, "OK (") || strings.Contains(upper, "FAILED (")) {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:563: // Parse "    OK (llm, NB, Vern N/Total)" or "    FAILED (id, exit N, Vern N/Total)"
+C:\GIT\legal-bot\go\internal\tui\discovery.go:564: if num := parseVernResultLine(line); num > 0 {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:565: if vs, ok := m.vernRoster[num]; ok {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:761: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\discovery.go:762: // Count completed Verns from roster (handles async completion)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:764: for _, vs := range m.vernRoster {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:769: m.vernsCompleted = completed
+C:\GIT\legal-bot\go\internal\tui\discovery.go:903: if v.vernhole != "" {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:904: council = councilLabel(v.vernhole)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:919: b.WriteString(fmt.Sprintf("  %s    %s\n", label("VernHole:"), val(council)))
+C:\GIT\legal-bot\go\internal\tui\discovery.go:921: if v.vernhole != "" && v.oracle {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:979: if v.vernhole != "" {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:980: opts.VernHoleCouncil = v.vernhole
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1050: // renderVernOutlinePanel renders VernHole persona status in a bordered panel.
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1051: // Verns run in parallel, so status is independent per-Vern (not sequential).
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1052: func (m DiscoveryModel) renderVernOutlinePanel(width, height int) string {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1055: b.WriteString(fmt.Sprintf("Council:  %s\n", llmStyle.Render(councilLabel(m.vals.vernhole))))
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1057: if m.totalVerns > 0 {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1058: b.WriteString(fmt.Sprintf("Progress: %s\n", llmStyle.Render(fmt.Sprintf("%d/%d complete", m.vernsCompleted, m.totalVerns))))
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1062: // Show Verns sorted by number, with per-Vern status
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1063: for i := 1; i <= m.totalVerns; i++ {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1064: vs, ok := m.vernRoster[i]
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1080: panelTitleStyle.Render("VernHole Council") + "\n" + b.String(),
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1112: // parseVernLine parses "N/Total: Description (llm)" from a ">>> Vern " line.
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1113: func parseVernLine(rest string) (num, total int, desc, llmName string, ok bool) {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1141: // parseVernResultLine extracts the Vern number from an OK or FAILED line.
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1142: // Format: "    OK (llm, NB, Vern N/Total)" or "    FAILED (id, exit N, Vern N/Total)"
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1143: func parseVernResultLine(line string) int {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1144: // Look for "Vern N/" pattern
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1145: idx := strings.Index(line, "Vern ")
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1149: rest := line[idx+5:] // after "Vern "
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1250: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1251: b.WriteString(fmt.Sprintf("%s %s\n\n", m.spinner.View(), logHeaderStyle.Render("Summoning the VernHole council...")))
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1296: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1297: left = m.renderVernOutlinePanel(leftW, totalAvail)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1324: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1325: if m.totalVerns > 0 {
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1326: pct := float64(m.vernsCompleted) / float64(m.totalVerns)
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1330: b.WriteString(fmt.Sprintf("  %s %d/%d Verns",
+C:\GIT\legal-bot\go\internal\tui\discovery.go:1332: m.vernsCompleted, m.totalVerns))
+C:\GIT\legal-bot\go\internal\tui\discovery_test.go:26: {">>> VernHole starting", 5, 1.0},
+C:\GIT\legal-bot\go\internal\tui\generate.go:12: "github.com/jdonohoo/legal-bot/go/internal/generate"
+C:\GIT\legal-bot\go\internal\tui\generate.go:159: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\generate.go:347: b.WriteString(subtitleStyle.Render("Create a new Vern persona using AI."))
+C:\GIT\legal-bot\go\internal\tui\historian.go:15: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\internal\tui\historian.go:16: "github.com/jdonohoo/legal-bot/go/internal/pipeline"
+C:\GIT\legal-bot\go\internal\tui\historian.go:114: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\hole.go:18: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\internal\tui\hole.go:19: "github.com/jdonohoo/legal-bot/go/internal/pipeline"
+C:\GIT\legal-bot\go\internal\tui\hole.go:44: // HoleModel handles the VernHole wizard.
+C:\GIT\legal-bot\go\internal\tui\hole.go:61: vernsCompleted int
+C:\GIT\legal-bot\go\internal\tui\hole.go:62: totalVerns     int
+C:\GIT\legal-bot\go\internal\tui\hole.go:161: Placeholder("./vernhole/").
+C:\GIT\legal-bot\go\internal\tui\hole.go:185: Title("Start VernHole?").
+C:\GIT\legal-bot\go\internal\tui\hole.go:190: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\hole.go:217: celebCmd = m.celebration.Start("vernhole", m.width)
+C:\GIT\legal-bot\go\internal\tui\hole.go:291: // Parse total from ">>> Vern N/Total:" lines
+C:\GIT\legal-bot\go\internal\tui\hole.go:292: if strings.HasPrefix(line, ">>> Vern ") {
+C:\GIT\legal-bot\go\internal\tui\hole.go:293: rest := strings.TrimPrefix(line, ">>> Vern ")
+C:\GIT\legal-bot\go\internal\tui\hole.go:294: if _, total, _, _, ok := parseVernLine(rest); ok {
+C:\GIT\legal-bot\go\internal\tui\hole.go:295: m.totalVerns = total
+C:\GIT\legal-bot\go\internal\tui\hole.go:298: // Count completions from OK/FAILED lines with "Vern N/" pattern
+C:\GIT\legal-bot\go\internal\tui\hole.go:299: if strings.Contains(upper, "VERN ") && (strings.Contains(upper, "OK (") || strings.Contains(upper, "FAILED (")) {
+C:\GIT\legal-bot\go\internal\tui\hole.go:300: m.vernsCompleted++
+C:\GIT\legal-bot\go\internal\tui\hole.go:318: content.WriteString(stepFailStyle.Render("VernHole failed: " + m.err.Error()))
+C:\GIT\legal-bot\go\internal\tui\hole.go:351: return "./vernhole/"
+C:\GIT\legal-bot\go\internal\tui\hole.go:419: err := pipeline.RunVernHole(pipeline.VernHoleOptions{
+C:\GIT\legal-bot\go\internal\tui\hole.go:452: // resultContent builds the full VernHole output as plain text for clipboard copy.
+C:\GIT\legal-bot\go\internal\tui\hole.go:456: b.WriteString("=== VERNHOLE COUNCIL RESULTS ===\n")
+C:\GIT\legal-bot\go\internal\tui\hole.go:478: // Cancel aborts any running VernHole goroutine.
+C:\GIT\legal-bot\go\internal\tui\hole.go:488: b.WriteString(titleStyle.Render("VernHole Council"))
+C:\GIT\legal-bot\go\internal\tui\hole.go:496: b.WriteString(fmt.Sprintf("%s %s\n", m.spinner.View(), logHeaderStyle.Render("Summoning the VernHole council...")))
+C:\GIT\legal-bot\go\internal\tui\hole.go:500: if m.totalVerns > 0 {
+C:\GIT\legal-bot\go\internal\tui\hole.go:501: pct := float64(m.vernsCompleted) / float64(m.totalVerns)
+C:\GIT\legal-bot\go\internal\tui\hole.go:505: b.WriteString(fmt.Sprintf("  %s %d/%d Verns\n\n",
+C:\GIT\legal-bot\go\internal\tui\hole.go:507: m.vernsCompleted, m.totalVerns))
+C:\GIT\legal-bot\go\internal\tui\hole.go:520: left := renderVernStatusPanel(m.vals.council, m.llmModeLabel(), m.vernsCompleted, m.totalVerns, leftW, availHeight)
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:13: // Verns are summoned in parallel — all appear quickly
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:14: {">>> Vern 1/4: Architect (claude)", 4, 0},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:15: {">>> Vern 2/4: Engineer (codex)", 4, 0},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:16: {">>> Vern 3/4: Validator (gemini)", 4, 0},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:17: {">>> Vern 4/4: Oracle (claude)", 4, 0},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:19: {"    OK (claude, 4800B, Vern 1/4)", 4, 1},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:20: {"    OK (codex, 3200B, Vern 2/4)", 4, 2},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:21: {"    FAILED (validator, exit 1, Vern 3/4) — excluding from synthesis", 4, 3},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:22: {"    OK (claude, 5100B, Vern 4/4)", 4, 4},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:24: {">>> Synthesizing the chaos (3/4 Verns succeeded)...", 4, 4},
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:29: if m.totalVerns != tt.wantTotal {
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:30: t.Errorf("after line %q: totalVerns = %d, want %d",
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:31: tt.line, m.totalVerns, tt.wantTotal)
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:33: if m.vernsCompleted != tt.wantCompleted {
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:34: t.Errorf("after line %q: vernsCompleted = %d, want %d",
+C:\GIT\legal-bot\go\internal\tui\hole_test.go:35: tt.line, m.vernsCompleted, tt.wantCompleted)
+C:\GIT\legal-bot\go\internal\tui\menu.go:10: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\internal\tui\menu.go:27: "VernHole Council",
+C:\GIT\legal-bot\go\internal\tui\menu.go:85: title := "VERN-BOT"
+C:\GIT\legal-bot\go\internal\tui\options.go:40: // CouncilOptions are the VernHole council tier options.
+C:\GIT\legal-bot\go\internal\tui\options.go:42: huh.NewOption("The Full Vern Experience (15) (Recommended)", "full"),
+C:\GIT\legal-bot\go\internal\tui\options.go:51: // VernHoleOptions are council options plus a "No VernHole" option for discovery.
+C:\GIT\legal-bot\go\internal\tui\options.go:52: var VernHoleOptions = []huh.Option[string]{
+C:\GIT\legal-bot\go\internal\tui\options.go:53: huh.NewOption("The Full Vern Experience (15) (Recommended)", "full"),
+C:\GIT\legal-bot\go\internal\tui\options.go:60: huh.NewOption("No VernHole, just the pipeline", ""),
+C:\GIT\legal-bot\go\internal\tui\options.go:72: huh.NewOption("Auto-apply — Architect Vern rewrites tasks from the vision", "apply"),
+C:\GIT\legal-bot\go\internal\tui\options_test.go:29: func TestVernHoleOptionsCount(t *testing.T) {
+C:\GIT\legal-bot\go\internal\tui\options_test.go:30: if len(VernHoleOptions) != 8 {
+C:\GIT\legal-bot\go\internal\tui\options_test.go:31: t.Errorf("expected 8 VernHole options (7 councils + none), got %d", len(VernHoleOptions))
+C:\GIT\legal-bot\go\internal\tui\options_test.go:66: func TestVernHoleOptionsNoDuplicateKeys(t *testing.T) {
+C:\GIT\legal-bot\go\internal\tui\options_test.go:68: for _, opt := range VernHoleOptions {
+C:\GIT\legal-bot\go\internal\tui\options_test.go:70: t.Errorf("VernHoleOptions: duplicate key %q", opt.Key)
+C:\GIT\legal-bot\go\internal\tui\oracle.go:19: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\internal\tui\oracle.go:20: "github.com/jdonohoo/legal-bot/go/internal/pipeline"
+C:\GIT\legal-bot\go\internal\tui\oracle.go:38: huh.NewOption("Run VernHole on existing output", "vernhole"),
+C:\GIT\legal-bot\go\internal\tui\oracle.go:64: // VernHole output dir (derived from project)
+C:\GIT\legal-bot\go\internal\tui\oracle.go:65: vernholeDir string
+C:\GIT\legal-bot\go\internal\tui\oracle.go:92: vernsCompleted int
+C:\GIT\legal-bot\go\internal\tui\oracle.go:93: totalVerns     int
+C:\GIT\legal-bot\go\internal\tui\oracle.go:178: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\oracle.go:199: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\oracle.go:224: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\oracle.go:231: return "Projects with vernhole/synthesis.md"
+C:\GIT\legal-bot\go\internal\tui\oracle.go:234: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:272: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:327: return huh.NewForm(groups...).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\oracle.go:348: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:350: b.WriteString(fmt.Sprintf("  %s  %s\n", label("Output:"), dim(v.vernholeDir)))
+C:\GIT\legal-bot\go\internal\tui\oracle.go:385: synthPath := filepath.Join(projPath, "vernhole", "synthesis.md")
+C:\GIT\legal-bot\go\internal\tui\oracle.go:396: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:444: v.synthDir = filepath.Join(projPath, "vernhole")
+C:\GIT\legal-bot\go\internal\tui\oracle.go:449: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:451: v.vernholeDir = filepath.Join(projPath, "vernhole")
+C:\GIT\legal-bot\go\internal\tui\oracle.go:536: if m.vals.operation == "vernhole" {
+C:\GIT\legal-bot\go\internal\tui\oracle.go:537: phase = "vernhole"
+C:\GIT\legal-bot\go\internal\tui\oracle.go:688: if strings.HasPrefix(line, ">>> Vern ") {
+C:\GIT\legal-bot\go\internal\tui\oracle.go:689: m.totalVerns++
+C:\GIT\legal-bot\go\internal\tui\oracle.go:692: m.vernsCompleted++
+C:\GIT\legal-bot\go\internal\tui\oracle.go:718: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:719: synthDir := v.vernholeDir
+C:\GIT\legal-bot\go\internal\tui\oracle.go:721: synthDir = "./vernhole/"
+C:\GIT\legal-bot\go\internal\tui\oracle.go:764: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:765: vernDir := m.vals.vernholeDir
+C:\GIT\legal-bot\go\internal\tui\oracle.go:766: if vernDir == "" {
+C:\GIT\legal-bot\go\internal\tui\oracle.go:767: vernDir = "./vernhole/"
+C:\GIT\legal-bot\go\internal\tui\oracle.go:769: content.WriteString(fmt.Sprintf("Files created in: %s\n\n", logDimStyle.Render(vernDir)))
+C:\GIT\legal-bot\go\internal\tui\oracle.go:770: synthPath := filepath.Join(vernDir, "synthesis.md")
+C:\GIT\legal-bot\go\internal\tui\oracle.go:834: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:916: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:917: vernDir := v.vernholeDir
+C:\GIT\legal-bot\go\internal\tui\oracle.go:918: if vernDir == "" {
+C:\GIT\legal-bot\go\internal\tui\oracle.go:919: vernDir = "./vernhole/"
+C:\GIT\legal-bot\go\internal\tui\oracle.go:921: os.MkdirAll(vernDir, 0755)
+C:\GIT\legal-bot\go\internal\tui\oracle.go:922: err = pipeline.RunVernHole(pipeline.VernHoleOptions{
+C:\GIT\legal-bot\go\internal\tui\oracle.go:925: OutputDir:    vernDir,
+C:\GIT\legal-bot\go\internal\tui\oracle.go:965: b.WriteString(subtitleStyle.Render("Run Oracle or VernHole on existing discovery output."))
+C:\GIT\legal-bot\go\internal\tui\oracle.go:980: opLabel = "No projects with vernhole/synthesis.md found in:"
+C:\GIT\legal-bot\go\internal\tui\oracle.go:983: case "vernhole":
+C:\GIT\legal-bot\go\internal\tui\oracle.go:1003: // Progress bar for vernhole operation
+C:\GIT\legal-bot\go\internal\tui\oracle.go:1004: if m.vals.operation == "vernhole" && m.totalVerns > 0 {
+C:\GIT\legal-bot\go\internal\tui\oracle.go:1005: pct := float64(m.vernsCompleted) / float64(m.totalVerns)
+C:\GIT\legal-bot\go\internal\tui\oracle.go:1009: b.WriteString(fmt.Sprintf("  %s %d/%d Verns\n\n",
+C:\GIT\legal-bot\go\internal\tui\oracle.go:1011: m.vernsCompleted, m.totalVerns))
+C:\GIT\legal-bot\go\internal\tui\oracle.go:1020: if m.vals.operation == "vernhole" && cw >= splitPanelMinWidth && len(m.stepLog) > 3 {
+C:\GIT\legal-bot\go\internal\tui\oracle.go:1024: left := renderVernStatusPanel(m.vals.council, m.llmModeLabel(), m.vernsCompleted, m.totalVerns, leftW, availHeight)
+C:\GIT\legal-bot\go\internal\tui\run.go:16: "github.com/jdonohoo/legal-bot/go/internal/council"
+C:\GIT\legal-bot\go\internal\tui\run.go:17: "github.com/jdonohoo/legal-bot/go/internal/llm"
+C:\GIT\legal-bot\go\internal\tui\run.go:110: for _, vern := range council.ScanRoster(m.agentsDir) {
+C:\GIT\legal-bot\go\internal\tui\run.go:112: fmt.Sprintf("%s - %s", vern.ID, vern.Desc), vern.ID,
+C:\GIT\legal-bot\go\internal\tui\run.go:126: Title("Vern Persona").
+C:\GIT\legal-bot\go\internal\tui\run.go:158: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\run.go:327: name = v.persona + "-vern-tui-run.md"
+C:\GIT\legal-bot\go\internal\tui\run.go:440: b.WriteString(subtitleStyle.Render("Run a one-shot prompt against any LLM, optionally with a Vern persona."))
+C:\GIT\legal-bot\go\internal\tui\settings.go:15: "github.com/jdonohoo/legal-bot/go/internal/config"
+C:\GIT\legal-bot\go\internal\tui\settings.go:249: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\settings.go:285: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\settings.go:299: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\settings.go:313: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\settings.go:360: ).WithTheme(VernTheme()).WithWidth(w).WithHeight(formHeight(m.height))
+C:\GIT\legal-bot\go\internal\tui\styles.go:11: // Vern brand colors — matches docs/index.html site palette
+C:\GIT\legal-bot\go\internal\tui\styles.go:186: // renderLogLine applies color to a pipeline/vernhole log line based on content.
+C:\GIT\legal-bot\go\internal\tui\styles.go:321: // renderVernStatusPanel renders VernHole progress into a bordered panel with fixed height.
+C:\GIT\legal-bot\go\internal\tui\styles.go:322: func renderVernStatusPanel(council string, llmMode string, vernsCompleted int, totalVerns int, width, height int) string {
+C:\GIT\legal-bot\go\internal\tui\styles.go:327: b.WriteString(fmt.Sprintf("Progress: %s\n", llmStyle.Render(fmt.Sprintf("%d/%d Verns", vernsCompleted, totalVerns))))
+C:\GIT\legal-bot\go\internal\tui\styles.go:330: panelTitleStyle.Render("VernHole Status") + "\n" + b.String(),
+C:\GIT\legal-bot\go\internal\tui\theme.go:8: // VernTheme returns a huh theme using the Vern brand colors.
+C:\GIT\legal-bot\go\internal\tui\theme.go:9: func VernTheme() *huh.Theme {
+C:\GIT\legal-bot\go\internal\tui\theme_test.go:5: func TestVernThemeNotNil(t *testing.T) {
+C:\GIT\legal-bot\go\internal\tui\theme_test.go:6: theme := VernTheme()
+C:\GIT\legal-bot\go\internal\tui\theme_test.go:8: t.Fatal("VernTheme() returned nil")
+C:\GIT\legal-bot\go\internal\tui\theme_test.go:12: func TestVernThemeFocusedStyles(t *testing.T) {
+C:\GIT\legal-bot\go\internal\tui\theme_test.go:13: theme := VernTheme()
+C:\GIT\legal-bot\go\internal\tui\theme_test.go:29: func TestVernThemeBlurredStyles(t *testing.T) {
+C:\GIT\legal-bot\go\internal\tui\theme_test.go:30: theme := VernTheme()
+C:\GIT\legal-bot\bin\install-legal-bot-cli:10: REPO="jdonohoo/legal-bot"
+C:\GIT\legal-bot\bin\install-legal-bot-cli:39: ARCHIVE_NAME="vern_${OS}_${ARCH}"
+C:\GIT\legal-bot\bin\install-legal-bot-cli.cmd:9: set "REPO=jdonohoo/legal-bot"
+C:\GIT\legal-bot\bin\legal-bot-council:3: # Legacy VernHole wrapper.
+C:\GIT\legal-bot\bin\legal-bot-council:10: echo "This is a legacy VernHole wrapper and is not part of the current Legal-Bot legal workflow." >&2
+C:\GIT\legal-bot\bin\legal-bot-council.cmd:2: REM Legacy VernHole wrapper.
+C:\GIT\legal-bot\bin\legal-bot-council.cmd:8: echo This is a legacy VernHole wrapper and is not part of the current Legal-Bot legal workflow. 1>&2
+C:\GIT\legal-bot\bin\legal-bot-discovery:3: # Legacy Vern-Bot wrapper.
+C:\GIT\legal-bot\bin\legal-bot-discovery:10: echo "This is a legacy Vern-Bot wrapper and is not part of the current Legal-Bot legal workflow." >&2
+C:\GIT\legal-bot\bin\legal-bot-discovery.cmd:2: REM Legacy Vern-Bot wrapper.
+C:\GIT\legal-bot\bin\legal-bot-discovery.cmd:8: echo This is a legacy Vern-Bot wrapper and is not part of the current Legal-Bot legal workflow. 1>&2
+C:\GIT\legal-bot\bin\legal-bot-generate:3: # Legacy Vern persona-generation wrapper.
+C:\GIT\legal-bot\bin\legal-bot-generate:9: echo "This is a legacy Vern persona-generation wrapper and is not part of the current Legal-Bot legal workflow." >&2
+C:\GIT\legal-bot\bin\legal-bot-historian:3: # vern-historian: Index a directory of input files into a structured concept map
+C:\GIT\legal-bot\bin\legal-bot-historian:7: # Usage: vern-historian <directory> [flags]
+C:\GIT\legal-bot\bin\legal-bot-historian:15: VERN_CLI="$SCRIPT_DIR/../go/bin/legal-bot"
+C:\GIT\legal-bot\bin\legal-bot-historian:18: if [ ! -x "$VERN_CLI" ]; then
+C:\GIT\legal-bot\bin\legal-bot-historian:20: echo "[vern-historian] Building legal-bot CLI from source..." >&2
+C:\GIT\legal-bot\bin\legal-bot-historian:23: if [ ! -x "$VERN_CLI" ] && [ -x "$SCRIPT_DIR/install-legal-bot-cli" ]; then
+C:\GIT\legal-bot\bin\legal-bot-historian:26: if [ ! -x "$VERN_CLI" ]; then
+C:\GIT\legal-bot\bin\legal-bot-historian:27: echo "[vern-historian] Error: legal-bot CLI not available. Run: cd go && go build -o bin/legal-bot ./cmd/legal-bot" >&2
+C:\GIT\legal-bot\bin\legal-bot-historian:32: exec "$VERN_CLI" historian "$@"
+C:\GIT\legal-bot\bin\legal-bot-oracle:3: # Legacy Vern oracle wrapper.
+C:\GIT\legal-bot\bin\legal-bot-oracle:9: echo "This is a legacy Vern oracle wrapper and is not part of the current Legal-Bot legal workflow." >&2
+C:\GIT\legal-bot\bin\legal-bot-run:25: VERN_CLI="$SCRIPT_DIR/../go/bin/legal-bot"
+C:\GIT\legal-bot\bin\legal-bot-run:28: if [ ! -x "$VERN_CLI" ]; then
+C:\GIT\legal-bot\bin\legal-bot-run:35: if [ ! -x "$VERN_CLI" ] && [ -x "$SCRIPT_DIR/install-legal-bot-cli" ]; then
+C:\GIT\legal-bot\bin\legal-bot-run:38: if [ ! -x "$VERN_CLI" ]; then
+C:\GIT\legal-bot\bin\legal-bot-run:60: exec "$VERN_CLI" "${ARGS[@]}"
+C:\GIT\legal-bot\bin\legal-bot-run.cmd:11: set "VERN_CLI=%SCRIPT_DIR%..\go\bin\legal-bot.exe"
+C:\GIT\legal-bot\bin\legal-bot-run.cmd:14: if not exist "%VERN_CLI%" (
+C:\GIT\legal-bot\bin\legal-bot-run.cmd:27: if not exist "%VERN_CLI%" (
+C:\GIT\legal-bot\bin\legal-bot-run.cmd:33: if not exist "%VERN_CLI%" (
+C:\GIT\legal-bot\bin\legal-bot-run.cmd:58: "%VERN_CLI%" %ARGS%

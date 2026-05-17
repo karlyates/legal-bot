@@ -1,4 +1,4 @@
-module github.com/jdonohoo/vern-bot/go
+module github.com/jdonohoo/legal-bot/go
 
 go 1.25.7
 

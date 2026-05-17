@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/jdonohoo/vern-bot/go/internal/config"
+	"github.com/jdonohoo/legal-bot/go/internal/config"
 )
 
 // MenuModel is the main menu screen.

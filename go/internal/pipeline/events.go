@@ -3,7 +3,7 @@ package pipeline
 import (
 	"fmt"
 
-	"github.com/jdonohoo/vern-bot/go/internal/council"
+	"github.com/jdonohoo/legal-bot/go/internal/council"
 )
 
 // EventHandler receives pipeline progress events.

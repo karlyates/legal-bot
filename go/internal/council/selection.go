@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jdonohoo/vern-bot/go/internal/embedded"
-	"github.com/jdonohoo/vern-bot/go/internal/persona"
+	"github.com/jdonohoo/legal-bot/go/internal/embedded"
+	"github.com/jdonohoo/legal-bot/go/internal/persona"
 )
 
 // Vern represents a persona in the roster.
@@ -33,7 +33,7 @@ func ScanRoster(agentsDir string) []Vern {
 
 	entries, err := os.ReadDir(agentsDir)
 	if err != nil {
-		// No agents dir on disk — use embedded data
+		// No agents dir on disk - use embedded data
 		return scanEmbeddedRoster(skip)
 	}
 

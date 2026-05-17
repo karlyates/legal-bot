@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Legacy VernHole wrapper.
+#
+# This wrapper is not part of the current Legal-Bot legal workflow.
+# The current operator-facing legal surface is `guide`, `intake`, `review`,
+# and `workflow`. See docs/legacy_surfaces.md.
+#
+
+echo "This is a legacy VernHole wrapper and is not part of the current Legal-Bot legal workflow." >&2
+echo "Use legal-bot tui only if you explicitly want the legacy utility UI." >&2
+echo "See docs/legacy_surfaces.md." >&2
+exit 1
