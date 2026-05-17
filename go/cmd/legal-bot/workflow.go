@@ -61,6 +61,9 @@ var (
 	workflowDraft        string
 	workflowChildRelated bool
 	workflowFinancial    bool
+	workflowLevel        string
+	workflowPlan         bool
+	workflowYes          bool
 )
 
 func init() {
@@ -75,6 +78,9 @@ func init() {
 	workflowCmd.Flags().StringVar(&workflowDraft, "draft", "", "Optional draft file to include in workflow context")
 	workflowCmd.Flags().BoolVar(&workflowChildRelated, "child-related", false, "Force child/family-dynamics routing when relevant")
 	workflowCmd.Flags().BoolVar(&workflowFinancial, "financial", false, "Force financial/support routing when relevant")
+	workflowCmd.Flags().StringVar(&workflowLevel, "level", string(analysisLevelScout), "Analysis level: scout, standard, deep, or max")
+	workflowCmd.Flags().BoolVar(&workflowPlan, "plan", false, "Print the planned workflow route without calling any LLMs")
+	workflowCmd.Flags().BoolVar(&workflowYes, "yes", false, "Skip confirmation for deep/max workflow runs")
 	_ = workflowCmd.MarkFlagRequired("type")
 	rootCmd.AddCommand(workflowCmd)
 }
@@ -93,6 +99,9 @@ func runWorkflow(cmd *cobra.Command, args []string) error {
 		Draft:        workflowDraft,
 		ChildRelated: workflowChildRelated,
 		Financial:    workflowFinancial,
+		Level:        workflowLevel,
+		Plan:         workflowPlan,
+		Yes:          workflowYes,
 	})
 }
 
@@ -109,10 +118,17 @@ type workflowRunOptions struct {
 	Draft        string
 	ChildRelated bool
 	Financial    bool
+	Level        string
+	Plan         bool
+	Yes          bool
 }
 
 func executeWorkflow(opts workflowRunOptions) error {
 	matter := opts.Matter
+	level, err := parseAnalysisLevel(opts.Level)
+	if err != nil {
+		return err
+	}
 
 	spec, ok := workflowSpecs()[normalizeRouteName(opts.Type)]
 	if !ok {
@@ -164,6 +180,16 @@ func executeWorkflow(opts workflowRunOptions) error {
 	knowledgeContext := buildKnowledgeContext(knowledgeDir)
 	inputManifest := buildInputManifest(inputDir)
 	steps = applyConditionalWorkflowRouting(steps, spec, inputs, opts.Audience, opts.Urgency, opts.ChildRelated, opts.Financial)
+	steps = applyWorkflowLevel(steps, level)
+	if opts.Plan {
+		fmt.Println()
+		printRunPlan(os.Stdout, buildRunPlanSummary(cfg, routeKindWorkflow, matter, level, spec.PipelineKey, steps))
+		return nil
+	}
+	maybeWarnLargeRun(os.Stdout, steps)
+	if err := maybeConfirmLargeRun(routeKindWorkflow, level, steps, opts.Yes); err != nil {
+		return err
+	}
 
 	os.MkdirAll(workingDir, 0755)
 	os.MkdirAll(outputDir, 0755)
@@ -175,6 +201,7 @@ func executeWorkflow(opts workflowRunOptions) error {
 	fmt.Println("  ============================================")
 	fmt.Printf("   Legal-Bot %s\n", spec.DisplayName)
 	fmt.Printf("   Matter: %s\n", matter)
+	fmt.Printf("   Level: %s\n", level)
 	if inputs.DraftName != "" {
 		fmt.Printf("   Draft context: %s\n", inputs.DraftName)
 	}

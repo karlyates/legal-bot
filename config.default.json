@@ -117,6 +117,96 @@
         }
       ]
     },
+    "review_reasoning_scout": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4-mini",
+        "effort": "low"
+      },
+      "fallbacks": [
+        {
+          "engine": "gemini",
+          "model": "flash-lite"
+        },
+        {
+          "engine": "claude",
+          "model": "haiku",
+          "effort": "medium"
+        }
+      ]
+    },
+    "review_reasoning_standard": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4-mini",
+        "effort": "medium"
+      },
+      "fallbacks": [
+        {
+          "engine": "gemini",
+          "model": "flash"
+        },
+        {
+          "engine": "claude",
+          "model": "haiku",
+          "effort": "medium"
+        }
+      ]
+    },
+    "final_synthesis_scout": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4-mini",
+        "effort": "low"
+      },
+      "fallbacks": [
+        {
+          "engine": "gemini",
+          "model": "flash-lite"
+        },
+        {
+          "engine": "claude",
+          "model": "haiku",
+          "effort": "medium"
+        }
+      ]
+    },
+    "final_synthesis_standard": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4-mini",
+        "effort": "medium"
+      },
+      "fallbacks": [
+        {
+          "engine": "gemini",
+          "model": "flash"
+        },
+        {
+          "engine": "claude",
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      ]
+    },
+    "strategy_reasoning_standard": {
+      "primary": {
+        "engine": "codex",
+        "model": "gpt-5.4-mini",
+        "effort": "medium"
+      },
+      "fallbacks": [
+        {
+          "engine": "claude",
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        {
+          "engine": "gemini",
+          "model": "flash"
+        }
+      ]
+    },
     "strategy_reasoning": {
       "primary": {
         "engine": "codex",

@@ -34,6 +34,9 @@ var (
 	reviewDocumentType string
 	reviewChildRelated bool
 	reviewFinancial    bool
+	reviewLevel        string
+	reviewPlan         bool
+	reviewYes          bool
 )
 
 func init() {
@@ -44,6 +47,9 @@ func init() {
 	reviewCmd.Flags().StringVar(&reviewDocumentType, "document-type", "", "Optional document type route: motion, opposition, response, reply, declaration, proposed-order, co-parenting-communication")
 	reviewCmd.Flags().BoolVar(&reviewChildRelated, "child-related", false, "Add the child best-interests/family-dynamics reviewer")
 	reviewCmd.Flags().BoolVar(&reviewFinancial, "financial", false, "Add the financial support reviewer")
+	reviewCmd.Flags().StringVar(&reviewLevel, "level", string(analysisLevelScout), "Analysis level: scout, standard, deep, or max")
+	reviewCmd.Flags().BoolVar(&reviewPlan, "plan", false, "Print the planned review route without calling any LLMs")
+	reviewCmd.Flags().BoolVar(&reviewYes, "yes", false, "Skip confirmation for deep/max review runs")
 	rootCmd.AddCommand(reviewCmd)
 }
 
@@ -57,6 +63,9 @@ func runReview(cmd *cobra.Command, args []string) error {
 		DocumentType: reviewDocumentType,
 		ChildRelated: reviewChildRelated,
 		Financial:    reviewFinancial,
+		Level:        reviewLevel,
+		Plan:         reviewPlan,
+		Yes:          reviewYes,
 	})
 }
 
@@ -69,10 +78,17 @@ type reviewOptions struct {
 	DocumentType string
 	ChildRelated bool
 	Financial    bool
+	Level        string
+	Plan         bool
+	Yes          bool
 }
 
 func executeReview(opts reviewOptions) error {
 	matter := opts.Matter
+	level, err := parseAnalysisLevel(opts.Level)
+	if err != nil {
+		return err
+	}
 
 	projectRoot := resolveProjectRoot()
 	agentsDir := resolveAgentsDir()
@@ -113,18 +129,7 @@ func executeReview(opts reviewOptions) error {
 	draftContent := string(draftData)
 	draftName := filepath.Base(draftPath)
 
-	os.MkdirAll(workingDir, 0755)
-	os.MkdirAll(outputDir, 0755)
-
 	timeout := cfg.GetPipelineStepTimeout()
-
-	fmt.Println()
-	fmt.Println("  ============================================")
-	fmt.Println("   Legal-Bot Draft Review Pipeline")
-	fmt.Printf("   Matter: %s\n", matter)
-	fmt.Printf("   Draft: %s\n", draftName)
-	fmt.Println("  ============================================")
-	fmt.Println()
 
 	caseContext := loadCaseContext(caseDir)
 	knowledgeContext := buildKnowledgeContext(knowledgeDir)
@@ -135,6 +140,28 @@ func executeReview(opts reviewOptions) error {
 		return fmt.Errorf("no review pipeline steps found in config for %q", pipelineKey)
 	}
 	steps = applyConditionalReviewRouting(steps, draftContent, opts.Mode, opts.DocumentType, opts.ChildRelated, opts.Financial)
+	steps = applyReviewLevel(steps, level)
+	if opts.Plan {
+		fmt.Println()
+		printRunPlan(os.Stdout, buildRunPlanSummary(cfg, routeKindReview, matter, level, pipelineKey, steps))
+		return nil
+	}
+	maybeWarnLargeRun(os.Stdout, steps)
+	if err := maybeConfirmLargeRun(routeKindReview, level, steps, opts.Yes); err != nil {
+		return err
+	}
+
+	os.MkdirAll(workingDir, 0755)
+	os.MkdirAll(outputDir, 0755)
+
+	fmt.Println()
+	fmt.Println("  ============================================")
+	fmt.Println("   Legal-Bot Draft Review Pipeline")
+	fmt.Printf("   Matter: %s\n", matter)
+	fmt.Printf("   Draft: %s\n", draftName)
+	fmt.Printf("   Level: %s\n", level)
+	fmt.Println("  ============================================")
+	fmt.Println()
 
 	var reviewOutputs strings.Builder
 

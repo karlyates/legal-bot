@@ -27,11 +27,17 @@ Example:
 var (
 	intakeSingleLLM string
 	intakeLLMMode   string
+	intakeLevel     string
+	intakePlan      bool
+	intakeYes       bool
 )
 
 func init() {
 	intakeCmd.Flags().StringVar(&intakeSingleLLM, "single-llm", "", "Use a single LLM for all steps")
 	intakeCmd.Flags().StringVar(&intakeLLMMode, "llm-mode", "", "LLM fallback mode")
+	intakeCmd.Flags().StringVar(&intakeLevel, "level", string(analysisLevelScout), "Analysis level: scout, standard, deep, or max")
+	intakeCmd.Flags().BoolVar(&intakePlan, "plan", false, "Print the planned intake route without calling any LLMs")
+	intakeCmd.Flags().BoolVar(&intakeYes, "yes", false, "Skip confirmation for deep/max intake runs")
 	rootCmd.AddCommand(intakeCmd)
 }
 
@@ -40,6 +46,9 @@ func runIntake(cmd *cobra.Command, args []string) error {
 		Matter:    args[0],
 		SingleLLM: intakeSingleLLM,
 		LLMMode:   intakeLLMMode,
+		Level:     intakeLevel,
+		Plan:      intakePlan,
+		Yes:       intakeYes,
 	})
 }
 
@@ -47,10 +56,17 @@ type intakeOptions struct {
 	Matter    string
 	SingleLLM string
 	LLMMode   string
+	Level     string
+	Plan      bool
+	Yes       bool
 }
 
 func executeIntake(opts intakeOptions) error {
 	matter := opts.Matter
+	level, err := parseAnalysisLevel(opts.Level)
+	if err != nil {
+		return err
+	}
 
 	projectRoot := resolveProjectRoot()
 	agentsDir := resolveAgentsDir()
@@ -78,10 +94,6 @@ func executeIntake(opts intakeOptions) error {
 		return fmt.Errorf("input directory not found: %s\nCreate it and add source documents first", inputDir)
 	}
 
-	os.MkdirAll(knowledgeDir, 0755)
-	os.MkdirAll(cardDir, 0755)
-	os.MkdirAll(workingDir, 0755)
-
 	inputFiles := countTextFiles(inputDir)
 	if inputFiles == 0 {
 		return fmt.Errorf("no .txt or .md files found in %s\nAdd source documents and try again", inputDir)
@@ -89,21 +101,36 @@ func executeIntake(opts intakeOptions) error {
 
 	timeout := cfg.GetPipelineStepTimeout()
 
+	steps := cfg.GetLegalPipeline("intake")
+	if len(steps) == 0 {
+		return fmt.Errorf("no intake pipeline steps found in config")
+	}
+	steps = applyIntakeLevel(steps, level)
+	if opts.Plan {
+		fmt.Println()
+		printRunPlan(os.Stdout, buildRunPlanSummary(cfg, routeKindIntake, matter, level, "intake", steps))
+		return nil
+	}
+	maybeWarnLargeRun(os.Stdout, steps)
+	if err := maybeConfirmLargeRun(routeKindIntake, level, steps, opts.Yes); err != nil {
+		return err
+	}
+
+	os.MkdirAll(knowledgeDir, 0755)
+	os.MkdirAll(cardDir, 0755)
+	os.MkdirAll(workingDir, 0755)
+
 	fmt.Println()
 	fmt.Println("  ============================================")
 	fmt.Println("   Legal-Bot Intake Pipeline")
 	fmt.Printf("   Matter: %s\n", matter)
+	fmt.Printf("   Level: %s\n", level)
 	fmt.Printf("   Input files: %d\n", inputFiles)
 	fmt.Println("  ============================================")
 	fmt.Println()
 
 	caseContext := loadCaseContext(caseDir)
 	inputContext := buildInputContext(inputDir)
-
-	steps := cfg.GetLegalPipeline("intake")
-	if len(steps) == 0 {
-		return fmt.Errorf("no intake pipeline steps found in config")
-	}
 
 	var prevOutput string
 	var knowledgeContext string

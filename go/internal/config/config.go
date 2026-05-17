@@ -421,6 +421,41 @@ func defaultModelProfiles() map[string]ModelProfileConfig {
 				{Engine: "claude", Model: "haiku", Effort: "medium", Set: true},
 			},
 		},
+		"review_reasoning_scout": {
+			Primary: ModelTargetSpec{Engine: "codex", Model: "gpt-5.4-mini", Effort: "low", Set: true},
+			Fallbacks: []ModelTargetSpec{
+				{Engine: "gemini", Model: "flash-lite", Set: true},
+				{Engine: "claude", Model: "haiku", Effort: "medium", Set: true},
+			},
+		},
+		"review_reasoning_standard": {
+			Primary: ModelTargetSpec{Engine: "codex", Model: "gpt-5.4-mini", Effort: "medium", Set: true},
+			Fallbacks: []ModelTargetSpec{
+				{Engine: "gemini", Model: "flash", Set: true},
+				{Engine: "claude", Model: "haiku", Effort: "medium", Set: true},
+			},
+		},
+		"final_synthesis_scout": {
+			Primary: ModelTargetSpec{Engine: "codex", Model: "gpt-5.4-mini", Effort: "low", Set: true},
+			Fallbacks: []ModelTargetSpec{
+				{Engine: "gemini", Model: "flash-lite", Set: true},
+				{Engine: "claude", Model: "haiku", Effort: "medium", Set: true},
+			},
+		},
+		"final_synthesis_standard": {
+			Primary: ModelTargetSpec{Engine: "codex", Model: "gpt-5.4-mini", Effort: "medium", Set: true},
+			Fallbacks: []ModelTargetSpec{
+				{Engine: "gemini", Model: "flash", Set: true},
+				{Engine: "claude", Model: "sonnet", Effort: "medium", Set: true},
+			},
+		},
+		"strategy_reasoning_standard": {
+			Primary: ModelTargetSpec{Engine: "codex", Model: "gpt-5.4-mini", Effort: "medium", Set: true},
+			Fallbacks: []ModelTargetSpec{
+				{Engine: "claude", Model: "sonnet", Effort: "medium", Set: true},
+				{Engine: "gemini", Model: "flash", Set: true},
+			},
+		},
 		"strategy_reasoning": {
 			Primary: ModelTargetSpec{Engine: "codex", Model: "gpt-5.4", Effort: "high", Set: true},
 			Fallbacks: []ModelTargetSpec{

@@ -30,6 +30,7 @@ type guidedRunPlan struct {
 	WorkflowType   string
 	ReviewMode     string
 	DocumentType   string
+	Level          string
 	Audience       string
 	Urgency        string
 	Situation      string
@@ -74,6 +75,7 @@ var (
 	guideDraftFlag      string
 	guideReviewModeFlag string
 	guideDocumentType   string
+	guideLevelFlag      string
 )
 
 var guideCmd = &cobra.Command{
@@ -97,6 +99,7 @@ func init() {
 	guideCmd.Flags().StringVar(&guideDraftFlag, "draft", "", "Draft path for review or draft-aware workflows")
 	guideCmd.Flags().StringVar(&guideReviewModeFlag, "mode", "", "Review mode for guided review")
 	guideCmd.Flags().StringVar(&guideDocumentType, "document-type", "", "Review document type for guided review")
+	guideCmd.Flags().StringVar(&guideLevelFlag, "level", string(analysisLevelScout), "Analysis level for routed intake, review, or workflow commands")
 	rootCmd.AddCommand(guideCmd)
 }
 
@@ -175,14 +178,14 @@ func runGuide(cmd *cobra.Command, args []string) error {
 	}
 
 	if preRunAction == "intake" {
-		if err := executeIntake(intakeOptions{Matter: plan.Matter}); err != nil {
+		if err := executeIntake(intakeOptions{Matter: plan.Matter, Level: plan.Level}); err != nil {
 			return err
 		}
 	}
 
 	switch plan.Kind {
 	case "intake":
-		return executeIntake(intakeOptions{Matter: plan.Matter})
+		return executeIntake(intakeOptions{Matter: plan.Matter, Level: plan.Level})
 	case "review":
 		return executeReview(reviewOptions{
 			Matter:       plan.Matter,
@@ -191,6 +194,7 @@ func runGuide(cmd *cobra.Command, args []string) error {
 			DocumentType: plan.DocumentType,
 			ChildRelated: plan.ChildRelated,
 			Financial:    plan.Financial,
+			Level:        plan.Level,
 		})
 	case "workflow":
 		return executeWorkflow(workflowRunOptions{
@@ -204,6 +208,7 @@ func runGuide(cmd *cobra.Command, args []string) error {
 			Draft:        plan.DraftPath,
 			ChildRelated: plan.ChildRelated,
 			Financial:    plan.Financial,
+			Level:        plan.Level,
 		})
 	default:
 		return fmt.Errorf("unknown guided route kind %q", plan.Kind)
@@ -326,6 +331,7 @@ func buildGuidedPlan(reader *bufio.Reader, w io.Writer, status matterStatus, cho
 		Matter:       status.Matter,
 		Kind:         choice.Kind,
 		WorkflowType: choice.WorkflowType,
+		Level:        guideLevelFlag,
 		Audience:     choice.DefaultAudience,
 		Urgency:      choice.DefaultUrgency,
 		Goal:         choice.DefaultGoal,
@@ -565,6 +571,9 @@ func printPlan(w io.Writer, plan guidedRunPlan) {
 	fmt.Fprintln(w, "\nPlanned Legal-Bot run:")
 	fmt.Fprintf(w, "- Matter: %s\n", plan.Matter)
 	fmt.Fprintf(w, "- Route: %s\n", plan.Kind)
+	if plan.Level != "" {
+		fmt.Fprintf(w, "- Level: %s\n", plan.Level)
+	}
 	if plan.WorkflowType != "" {
 		fmt.Fprintf(w, "- Type: %s\n", plan.WorkflowType)
 	}
@@ -605,6 +614,9 @@ func guidedEquivalentCommand(plan guidedRunPlan) string {
 		parts = append(parts, "intake", plan.Matter)
 	case "review":
 		parts = append(parts, "review", plan.Matter)
+		if plan.Level != "" {
+			parts = append(parts, "--level", plan.Level)
+		}
 		if plan.ReviewMode != "" {
 			parts = append(parts, "--mode", plan.ReviewMode)
 		}
@@ -616,6 +628,9 @@ func guidedEquivalentCommand(plan guidedRunPlan) string {
 		}
 	case "workflow":
 		parts = append(parts, "workflow", plan.Matter, "--type", plan.WorkflowType)
+		if plan.Level != "" {
+			parts = append(parts, "--level", plan.Level)
+		}
 		if plan.Audience != "" {
 			parts = append(parts, "--audience", quoteIfNeeded(plan.Audience))
 		}
@@ -625,6 +640,9 @@ func guidedEquivalentCommand(plan guidedRunPlan) string {
 		if plan.DraftPath != "" {
 			parts = append(parts, "--draft", quoteIfNeeded(plan.DraftPath))
 		}
+	}
+	if plan.Kind == "intake" && plan.Level != "" {
+		parts = append(parts, "--level", plan.Level)
 	}
 	if plan.ChildRelated {
 		parts = append(parts, "--child-related")
