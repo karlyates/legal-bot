@@ -107,6 +107,7 @@ func executeIntake(opts intakeOptions) error {
 
 	var prevOutput string
 	var knowledgeContext string
+	var failedSteps []string
 
 	for _, step := range steps {
 		stepNum := step.Step
@@ -146,6 +147,7 @@ func executeIntake(opts intakeOptions) error {
 		selection, routeErr := selectStepRoute(cfg, step.ModelProfile, step.LLM)
 		if routeErr != nil {
 			fmt.Printf("    FAILED: %s %s\n", step.Name, routeErr.Error())
+			failedSteps = append(failedSteps, step.Name)
 			os.WriteFile(outputFile, []byte(fmt.Sprintf("# STEP FAILED\n\nStep %d (%s) failed.\n\nRoute error: %s\n", stepNum, step.Name, routeErr.Error())), 0644)
 			continue
 		}
@@ -159,6 +161,7 @@ func executeIntake(opts intakeOptions) error {
 				detail = llm.FirstLine(result.Stderr)
 			}
 			fmt.Printf("    FAILED: %s %s\n", step.Name, detail)
+			failedSteps = append(failedSteps, step.Name)
 			os.WriteFile(outputFile, []byte(fmt.Sprintf("# STEP FAILED\n\nStep %d (%s) failed.\n", stepNum, step.Name)), 0644)
 			continue
 		}
@@ -181,18 +184,30 @@ func executeIntake(opts intakeOptions) error {
 
 	writeIngestionReport(matterDir, matter, inputFiles)
 
+	statusTitle, statusNote, summaryErr := intakeSummary(len(steps), failedSteps)
+
 	fmt.Println()
 	fmt.Println("  ============================================")
-	fmt.Println("   Intake Complete")
+	fmt.Printf("   %s\n", statusTitle)
 	fmt.Printf("   Knowledge: matters/%s/knowledge/\n", matter)
+	if statusNote != "" {
+		fmt.Printf("   %s\n", statusNote)
+	}
 	fmt.Println("  ============================================")
 	fmt.Println()
+	if len(failedSteps) > 0 {
+		fmt.Println("  Failed steps:")
+		for _, name := range failedSteps {
+			fmt.Printf("  - %s\n", name)
+		}
+		fmt.Println()
+	}
 	fmt.Println("  Next steps:")
 	fmt.Printf("  1. Review: matters/%s/knowledge/open_questions_for_user.md\n", matter)
 	fmt.Printf("  2. Add or update: matters/%s/situation.md, goal.md, and drafts/ as needed\n", matter)
 	fmt.Println("  3. Run a workflow or draft review")
 
-	return nil
+	return summaryErr
 }
 
 // countTextFiles counts .txt and .md files in a directory
@@ -369,6 +384,18 @@ func fileSize(path string) int64 {
 		return 0
 	}
 	return info.Size()
+}
+
+func intakeSummary(totalSteps int, failedSteps []string) (string, string, error) {
+	failed := len(failedSteps)
+	switch {
+	case failed == 0:
+		return "Intake Complete", "", nil
+	case failed >= totalSteps && totalSteps > 0:
+		return "Intake Failed", fmt.Sprintf("%d/%d steps failed.", failed, totalSteps), fmt.Errorf("intake failed: %d/%d steps failed", failed, totalSteps)
+	default:
+		return "Intake Completed with Failures", fmt.Sprintf("%d/%d steps failed.", failed, totalSteps), fmt.Errorf("intake completed with failures: %d/%d steps failed", failed, totalSteps)
+	}
 }
 
 // resolveProjectRoot finds the project root directory

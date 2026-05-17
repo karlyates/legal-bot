@@ -210,6 +210,30 @@ func TestDefaultWorkflowRoutesExist(t *testing.T) {
 	}
 }
 
+func TestIntakeLongContextProfileIncludesCodexFallback(t *testing.T) {
+	repoRoot := filepath.Join("..", "..", "..")
+	cfg, err := loadFile(filepath.Join(repoRoot, "config.default.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	profile, ok := cfg.ModelProfiles["intake_long_context"]
+	if !ok {
+		t.Fatal("missing intake_long_context profile")
+	}
+
+	found := false
+	for _, target := range profile.Fallbacks {
+		if target.Engine == "codex" && target.Model == "gpt-5.4" && target.Effort == "medium" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("intake_long_context fallbacks = %#v, want codex:gpt-5.4:medium", profile.Fallbacks)
+	}
+}
+
 func TestActiveLegalAgentsExistAndMatchFrontmatter(t *testing.T) {
 	repoRoot := filepath.Join("..", "..", "..")
 	agentsDir := filepath.Join(repoRoot, "agents")

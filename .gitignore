@@ -24,3 +24,17 @@ case/private/
 *.docx
 *.doc
 *.xlsx
+
+# Legal-Bot local/sensitive matter data
+matters/**
+!matters/
+!matters/sample-matter/
+!matters/sample-matter/input/
+!matters/sample-matter/input/source-1.md
+!matters/sample-matter/drafts/
+!matters/sample-matter/.gitkeep
+
+# Generated matter outputs/knowledge should stay local
+matters/*/knowledge/**
+matters/*/output/**
+matters/*/working/**

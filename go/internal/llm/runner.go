@@ -7,6 +7,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -83,13 +85,17 @@ func Run(opts RunOptions) (*Result, error) {
 	start := time.Now()
 
 	var cmd *exec.Cmd
+	var commandPath string
+	var commandArgs []string
 	var output []byte
 	var err error
 
 	switch llm {
 	case "claude":
 		fullPrompt := textOnly + personaContext + opts.Prompt + signOff
-		cmd = exec.CommandContext(ctx, "claude", buildClaudeArgs(fullPrompt, opts)...)
+		commandPath = "claude"
+		commandArgs = buildClaudeArgs(fullPrompt, opts)
+		cmd = exec.CommandContext(ctx, commandPath, commandArgs...)
 		cmd.Env = append(os.Environ(), "NODE_OPTIONS=--max-old-space-size=32768")
 
 	case "codex":
@@ -109,12 +115,22 @@ func Run(opts RunOptions) (*Result, error) {
 			codexDir = "."
 		}
 
-		cmd = exec.CommandContext(ctx, "codex", buildCodexArgs(fullPrompt, tmpPath, codexDir, opts)...)
-		// Codex writes to tmpPath; we'll read it after
+		codexExe, resolveErr := resolveCodexExecutable()
+		if resolveErr != nil {
+			return nil, fmt.Errorf("resolve codex executable: %w", resolveErr)
+		}
+		commandPath = codexExe
+		commandArgs = buildCodexArgs(tmpPath, codexDir, opts)
+		cmd = exec.CommandContext(ctx, commandPath, commandArgs...)
+		// Codex writes the last assistant message to tmpPath. Feed the full
+		// prompt over stdin so large intake/workflow prompts do not exceed the
+		// Windows command-line length limit when codex is installed via npm.
+		cmd.Stdin = strings.NewReader(fullPrompt)
 
 		// Set process group so we can kill children
 		setProcGroup(cmd)
-		cmd.Stdout = nil // codex output goes to -o file
+		var stdoutBuf bytes.Buffer
+		cmd.Stdout = &stdoutBuf
 		var stderrBuf bytes.Buffer
 		if opts.QuietStderr {
 			cmd.Stderr = &stderrBuf
@@ -148,20 +164,32 @@ func Run(opts RunOptions) (*Result, error) {
 			Duration:   duration,
 		}
 
+		emitRunDiagnostics(llm, opts, commandPath, commandArgs, stdoutBuf.Len(), result, runErr)
 		result, wErr := writeOutput(result, opts.OutputFile)
 		logRun(opts, llmRequested, result, runErr, wErr)
 		return result, wErr
 
 	case "gemini":
 		fullPrompt := textOnly + personaContext + opts.Prompt + signOff
-		cmd = exec.CommandContext(ctx, "gemini", buildGeminiArgs(fullPrompt, opts)...)
+		commandPath = "gemini"
+		commandArgs = buildGeminiArgs(fullPrompt, opts)
+		cmd = exec.CommandContext(ctx, commandPath, commandArgs...)
 
 	case "copilot":
 		fullPrompt := textOnly + personaContext + opts.Prompt + signOff
-		cmd = exec.CommandContext(ctx, "copilot", buildCopilotArgs(fullPrompt, opts)...)
+		commandPath = "copilot"
+		commandArgs = buildCopilotArgs(fullPrompt, opts)
+		cmd = exec.CommandContext(ctx, commandPath, commandArgs...)
 
 	default:
 		return nil, fmt.Errorf("unknown LLM: %s (valid: claude, codex, gemini, copilot)", llm)
+	}
+
+	if commandPath == "" {
+		commandPath = cmd.Path
+	}
+	if len(commandArgs) == 0 {
+		commandArgs = cmd.Args[1:]
 	}
 
 	// Set working directory so the LLM can access files there (e.g. Gemini sandbox)
@@ -206,6 +234,7 @@ func Run(opts RunOptions) (*Result, error) {
 		Duration:   duration,
 	}
 
+	emitRunDiagnostics(llm, opts, commandPath, commandArgs, len(output), result, err)
 	result, wErr := writeOutput(result, opts.OutputFile)
 	logRun(opts, llmRequested, result, err, wErr)
 	return result, wErr
@@ -223,7 +252,7 @@ func buildClaudeArgs(prompt string, opts RunOptions) []string {
 	return args
 }
 
-func buildCodexArgs(prompt string, outputPath string, workingDir string, opts RunOptions) []string {
+func buildCodexArgs(outputPath string, workingDir string, opts RunOptions) []string {
 	args := []string{"exec", "--skip-git-repo-check"}
 	if workingDir != "" {
 		args = append(args, "--cd", workingDir)
@@ -234,7 +263,7 @@ func buildCodexArgs(prompt string, outputPath string, workingDir string, opts Ru
 	if effort := effectiveEffort("codex", opts.Effort); effort != "" {
 		args = append(args, "-c", "model_reasoning_effort="+effort)
 	}
-	args = append(args, "-o", outputPath, prompt)
+	args = append(args, "-o", outputPath)
 	return args
 }
 
@@ -275,7 +304,7 @@ func resolveLLM(llm string) string {
 	case "claude", "c":
 		return "claude"
 	case "codex", "x":
-		if _, err := exec.LookPath("codex"); err != nil {
+		if _, err := resolveCodexExecutable(); err != nil {
 			fmt.Fprintf(os.Stderr, "[legal-bot-run] Warning: codex CLI not found, falling back to claude\n")
 			return "claude"
 		}
@@ -396,4 +425,97 @@ func writeOutput(result *Result, outputFile string) (*Result, error) {
 	}
 
 	return result, nil
+}
+
+func resolveCodexExecutable() (string, error) {
+	if runtime.GOOS == "windows" {
+		for _, candidate := range []string{"codex.cmd", "codex.exe", "codex"} {
+			if path, err := exec.LookPath(candidate); err == nil {
+				return path, nil
+			}
+		}
+	}
+	return exec.LookPath("codex")
+}
+
+func emitRunDiagnostics(engine string, opts RunOptions, executable string, args []string, stdoutBytes int, result *Result, runErr error) {
+	if result == nil {
+		return
+	}
+	if result.ExitCode == 0 && strings.TrimSpace(result.Output) != "" {
+		return
+	}
+	fmt.Fprintln(os.Stderr, formatRunDiagnostic(engine, opts, executable, args, stdoutBytes, result, runErr))
+}
+
+func formatRunDiagnostic(engine string, opts RunOptions, executable string, args []string, stdoutBytes int, result *Result, runErr error) string {
+	parts := []string{
+		"[legal-bot-run] Diagnostic:",
+		fmt.Sprintf("engine=%s", engine),
+		fmt.Sprintf("model=%s", blankIfEmpty(opts.Model)),
+		fmt.Sprintf("effort=%s", blankIfEmpty(effectiveEffort(engine, opts.Effort))),
+		fmt.Sprintf("command=%s", commandSummary(executable, sanitizeArgsForLog(args))),
+		fmt.Sprintf("exit_code=%d", result.ExitCode),
+		fmt.Sprintf("stdout_bytes=%d", stdoutBytes),
+		fmt.Sprintf("output_bytes=%d", len(result.Output)),
+	}
+	if result.TimedOut {
+		parts = append(parts, "timed_out=true")
+	}
+	if stderr := strings.TrimSpace(result.Stderr); stderr != "" {
+		parts = append(parts, fmt.Sprintf("stderr_tail=%q", truncatePrompt(stderr, 300)))
+	} else if runErr != nil {
+		parts = append(parts, fmt.Sprintf("error=%q", truncatePrompt(runErr.Error(), 300)))
+	}
+	return strings.Join(parts, " ")
+}
+
+func commandSummary(executable string, args []string) string {
+	base := executable
+	if executable != "" {
+		base = filepath.Base(executable)
+	}
+	if len(args) == 0 {
+		return base
+	}
+	return base + " " + strings.Join(args, " ")
+}
+
+func sanitizeArgsForLog(args []string) []string {
+	if len(args) == 0 {
+		return nil
+	}
+	sanitized := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		sanitized = append(sanitized, arg)
+		switch arg {
+		case "-p", "--prompt", "-o", "--output-last-message", "--output-schema", "--model", "--cd", "-C":
+			if i+1 < len(args) {
+				replacement := "<value>"
+				if arg == "-p" || arg == "--prompt" {
+					replacement = "<prompt>"
+				}
+				sanitized = append(sanitized, replacement)
+				i++
+			}
+		case "-c", "--config":
+			if i+1 < len(args) {
+				sanitized = append(sanitized, args[i+1])
+				i++
+			}
+		default:
+			if i == len(args)-1 && !strings.HasPrefix(arg, "-") {
+				sanitized[len(sanitized)-1] = "<prompt>"
+			}
+		}
+	}
+	return sanitized
+}
+
+func blankIfEmpty(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return "-"
+	}
+	return value
 }

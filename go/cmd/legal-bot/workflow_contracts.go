@@ -38,7 +38,7 @@ var workflowMetadataFields = []string{
 
 var workflowSourceStrengthTaxonomy = []string{
 	"Locked / source-supported fact: supported by source documents, orders, filed records, preserved messages, emails, or third-party records.",
-	"User recollection / user assertion: Karl says it happened, but no source anchor is currently available in the matter record.",
+	"User recollection / user assertion: The user says it happened, but no source anchor is currently available in the matter record.",
 	"Inference: a reasonable conclusion from source-supported facts, but not itself directly proven.",
 	"Disputed allegation: alleged by one side or in a filing/message/record, but not accepted as true without independent support.",
 	"Unsupported claim: strategically relevant, but lacking a present source.",
@@ -129,12 +129,12 @@ func allWorkflowOutputContracts() []workflowOutputContract {
 				{Heading: "Evidence Missing", Description: "List exact missing sources or records."},
 				{Heading: "Legal / Strategy Questions for Counsel", Description: "Frame as attorney questions, not directives."},
 				{Heading: "Options I See", Description: "Concise options with risks and benefits."},
-				{Heading: "Recommended Ask", Description: "What Karl should ask counsel to decide or do."},
+				{Heading: "Recommended Ask", Description: "What the user should ask counsel to decide or do."},
 				{Heading: "Attorney-Ready Draft", Description: "Include a concise email or call agenda when requested."},
 			},
 			Rules: []string{
 				"Counsel tone may be candid and strategic.",
-				"Do not make Karl sound like he is instructing counsel how to practice law.",
+				"Do not make the user sound like he is instructing counsel how to practice law.",
 			},
 			ExternalLanguageRules: []string{
 				"The Attorney-Ready Draft may be more candid than OFW/provider/school language, but it must still distinguish source-supported fact from interpretation.",
@@ -295,7 +295,7 @@ func allWorkflowOutputContracts() []workflowOutputContract {
 				{Heading: "Evidence Needed", Description: "List missing anchors and sources."},
 			},
 			Rules: []string{
-				"Pattern review should make Karl more selective, not more reactive.",
+				"Pattern review should make the User more selective, not more reactive.",
 				"Do not inflate weak examples just because they fit the theory.",
 			},
 			ExternalLanguageRules: []string{
@@ -398,7 +398,7 @@ func allWorkflowOutputContracts() []workflowOutputContract {
 				"follow up this way",
 			},
 			RequiredSections: []workflowSection{
-				{Heading: "Prep Objective", Description: "Say what Karl needs from the event."},
+				{Heading: "Prep Objective", Description: "Say what the User needs from the event."},
 				{Heading: "Bottom Line", Description: "State the main recommendation and desired outcome."},
 				{Heading: "Key Facts to Lead With", Description: "Short source-labeled list."},
 				{Heading: "Decisions Needed", Description: "Say what must be decided during the event."},

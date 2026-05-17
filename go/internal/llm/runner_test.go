@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -28,11 +29,17 @@ func TestResolveLLM(t *testing.T) {
 }
 
 func TestBuildEngineArgs(t *testing.T) {
-	codexArgs := buildCodexArgs("prompt", "out.md", "c:\\repo", RunOptions{Model: "gpt-5.4", Effort: "high"})
+	codexArgs := buildCodexArgs("out.md", "c:\\repo", RunOptions{Model: "gpt-5.4", Effort: "high"})
 	assertContainsSequence(t, codexArgs, []string{"--model", "gpt-5.4"})
 	assertContainsSequence(t, codexArgs, []string{"-c", "model_reasoning_effort=high"})
+	assertContainsSequence(t, codexArgs, []string{"-o", "out.md"})
 	if containsArg(codexArgs, "--dangerously-bypass-approvals-and-sandbox") {
 		t.Fatal("codex args should not include bypass flag by default")
+	}
+	for _, arg := range codexArgs {
+		if arg == "prompt" {
+			t.Fatal("codex prompt should be sent via stdin, not argv")
+		}
 	}
 
 	claudeArgs := buildClaudeArgs("prompt", RunOptions{Model: "sonnet", Effort: "xhigh"})
@@ -49,6 +56,56 @@ func TestBuildEngineArgs(t *testing.T) {
 	assertContainsSequence(t, copilotArgs, []string{"--model", "auto"})
 	if containsArg(copilotArgs, "--effort") {
 		t.Fatal("copilot args should not include effort")
+	}
+}
+
+func TestFormatRunDiagnosticHidesPromptAndIncludesExitContext(t *testing.T) {
+	diag := formatRunDiagnostic(
+		"claude",
+		RunOptions{Model: "sonnet", Effort: "high", Prompt: "secret prompt"},
+		"claude",
+		[]string{"--model", "sonnet", "--effort", "high", "-p", "secret prompt"},
+		17,
+		&Result{ExitCode: 1, Stderr: "fatal: backend unavailable"},
+		fmt.Errorf("exit status 1"),
+	)
+
+	if !strings.Contains(diag, "engine=claude") {
+		t.Fatalf("diagnostic missing engine: %s", diag)
+	}
+	if !strings.Contains(diag, "model=sonnet") || !strings.Contains(diag, "effort=high") {
+		t.Fatalf("diagnostic missing model/effort: %s", diag)
+	}
+	if !strings.Contains(diag, "exit_code=1") || !strings.Contains(diag, "stdout_bytes=17") {
+		t.Fatalf("diagnostic missing exit/stdout context: %s", diag)
+	}
+	if strings.Contains(diag, "secret prompt") {
+		t.Fatalf("diagnostic leaked prompt: %s", diag)
+	}
+	if !strings.Contains(diag, "<prompt>") {
+		t.Fatalf("diagnostic should include sanitized prompt marker: %s", diag)
+	}
+	if !strings.Contains(diag, "stderr_tail=") {
+		t.Fatalf("diagnostic missing stderr tail: %s", diag)
+	}
+}
+
+func TestResolveCodexExecutablePrefersCmdOnWindows(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip("windows-specific PATH resolution")
+	}
+
+	pathDir := t.TempDir()
+	writeFakeCLI(t, pathDir, "codex.cmd")
+	writeFakeCLI(t, pathDir, "codex.exe")
+	t.Setenv("PATH", pathDir)
+
+	got, err := resolveCodexExecutable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasSuffix(strings.ToLower(got), "codex.cmd") {
+		t.Fatalf("resolveCodexExecutable() = %q, want codex.cmd", got)
 	}
 }
 
@@ -284,4 +341,11 @@ func assertContainsSequence(t *testing.T, args []string, sequence []string) {
 		}
 	}
 	t.Fatalf("args %v do not contain sequence %v", args, sequence)
+}
+
+func writeFakeCLI(t *testing.T, dir string, name string) {
+	t.Helper()
+	if err := os.WriteFile(filepath.Join(dir, name), []byte("@echo off\r\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
 }

@@ -407,6 +407,11 @@ var DefaultConfigJSON = `{
           "engine": "claude",
           "model": "sonnet",
           "effort": "medium"
+        },
+        {
+          "engine": "codex",
+          "model": "gpt-5.4",
+          "effort": "medium"
         }
       ]
     },

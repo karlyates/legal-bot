@@ -390,6 +390,7 @@ func defaultModelProfiles() map[string]ModelProfileConfig {
 			Primary: ModelTargetSpec{Engine: "gemini", Model: "pro", Set: true},
 			Fallbacks: []ModelTargetSpec{
 				{Engine: "claude", Model: "sonnet", Effort: "medium", Set: true},
+				{Engine: "codex", Model: "gpt-5.4", Effort: "medium", Set: true},
 			},
 		},
 		"structured_extraction": {

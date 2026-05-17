@@ -50,7 +50,7 @@ What the guide does:
 
 1. asks for the matter if needed
 2. detects input, drafts, and knowledge-layer readiness
-3. asks what Karl is trying to do
+3. asks what the user is trying to do
 4. gathers only the route-specific details
 5. prints the planned command
 6. asks for confirmation before running in interactive mode

@@ -141,7 +141,7 @@ Intake builds:
 legal-bot guide <matter>
 ```
 
-The guide asks what Karl is trying to do, gathers only the route-specific details, shows a clear execution plan, and then routes to the existing `intake`, `workflow`, or `review` command logic.
+The guide asks what the user is trying to do, gathers only the route-specific details, shows a clear execution plan, and then routes to the existing `intake`, `workflow`, or `review` command logic.
 
 Guided choices:
 
