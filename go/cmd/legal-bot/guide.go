@@ -159,8 +159,10 @@ func runGuide(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := maybeWriteGuidedRequest(status, &plan); err != nil {
-		return err
+	if !guideDryRunFlag {
+		if err := maybeWriteGuidedRequest(status, &plan); err != nil {
+			return err
+		}
 	}
 
 	printPlan(writer, plan)
@@ -528,6 +530,9 @@ func handleMatterReadiness(reader *bufio.Reader, w io.Writer, status matterStatu
 }
 
 func maybeWriteGuidedRequest(status matterStatus, plan *guidedRunPlan) error {
+	if plan.DryRun {
+		return nil
+	}
 	if plan.Kind != "workflow" {
 		return nil
 	}

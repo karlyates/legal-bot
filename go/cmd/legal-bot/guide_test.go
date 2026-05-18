@@ -94,3 +94,26 @@ func TestDetectMatterStatusFindsNewestDraft(t *testing.T) {
 		t.Fatalf("expected newest draft new.md, got %s", status.NewestDraft)
 	}
 }
+
+func TestMaybeWriteGuidedRequestSkipsDryRun(t *testing.T) {
+	root := t.TempDir()
+	workingDir := filepath.Join(root, "working")
+	status := matterStatus{WorkingDir: workingDir}
+	plan := guidedRunPlan{
+		Matter:       "Matter-A",
+		Kind:         "workflow",
+		WorkflowType: "triage",
+		Situation:    "Test situation",
+		DryRun:       true,
+	}
+
+	if err := maybeWriteGuidedRequest(status, &plan); err != nil {
+		t.Fatal(err)
+	}
+	if plan.GuidedFilePath != "" {
+		t.Fatalf("expected no guided file path in dry-run, got %q", plan.GuidedFilePath)
+	}
+	if _, err := os.Stat(workingDir); !os.IsNotExist(err) {
+		t.Fatalf("expected working dir to remain absent, stat err = %v", err)
+	}
+}

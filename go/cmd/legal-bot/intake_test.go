@@ -1,6 +1,11 @@
 package main
 
-import "testing"
+import (
+	"path/filepath"
+	"testing"
+
+	"github.com/jdonohoo/legal-bot/go/internal/config"
+)
 
 func TestIntakeSummary(t *testing.T) {
 	tests := []struct {
@@ -47,6 +52,42 @@ func TestIntakeSummary(t *testing.T) {
 			}
 			if tt.wantErr && note == "" {
 				t.Fatal("expected failure note, got empty string")
+			}
+		})
+	}
+}
+
+func TestIntakeOutputFileForStepUsesSemanticIdentity(t *testing.T) {
+	workingDir := filepath.Join("matter", "working")
+	knowledgeDir := filepath.Join("matter", "knowledge")
+
+	tests := []struct {
+		name string
+		step config.PipelineStep
+		want string
+	}{
+		{
+			name: "chronology keeps timeline file after resequencing",
+			step: config.PipelineStep{Step: 2, Persona: "chronology-clerk", Name: "Chronology Construction"},
+			want: filepath.Join(knowledgeDir, "case_timeline.md"),
+		},
+		{
+			name: "atomic facts keep fact candidate file after resequencing",
+			step: config.PipelineStep{Step: 3, Persona: "atomic-fact-extractor", Name: "Atomic Fact Extraction"},
+			want: filepath.Join(knowledgeDir, "fact_candidates.md"),
+		},
+		{
+			name: "fallback still uses step number and persona",
+			step: config.PipelineStep{Step: 7, Persona: "custom-persona", Name: "Custom Step"},
+			want: filepath.Join(workingDir, "07-custom-persona.md"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := intakeOutputFileForStep(tt.step, workingDir, knowledgeDir)
+			if got != tt.want {
+				t.Fatalf("intakeOutputFileForStep() = %q, want %q", got, tt.want)
 			}
 		})
 	}

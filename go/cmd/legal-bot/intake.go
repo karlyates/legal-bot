@@ -140,21 +140,7 @@ func executeIntake(opts intakeOptions) error {
 		stepNum := step.Step
 		fmt.Printf("\n>>> Step %d/%d: %s (%s)\n", stepNum, len(steps), step.Name, step.LLM)
 
-		var outputFile string
-		switch stepNum {
-		case 1:
-			outputFile = filepath.Join(workingDir, "01-intake-mapping.md")
-		case 2:
-			outputFile = filepath.Join(workingDir, "02-document-cards.md")
-		case 3:
-			outputFile = filepath.Join(knowledgeDir, "case_timeline.md")
-		case 4:
-			outputFile = filepath.Join(knowledgeDir, "fact_candidates.md")
-		case 5:
-			outputFile = filepath.Join(knowledgeDir, "open_questions_for_user.md")
-		default:
-			outputFile = filepath.Join(workingDir, fmt.Sprintf("%02d-%s.md", stepNum, step.Persona))
-		}
+		outputFile := intakeOutputFileForStep(step, workingDir, knowledgeDir)
 
 		var prompt string
 		switch step.ContextMode {
@@ -199,11 +185,11 @@ func executeIntake(opts intakeOptions) error {
 		data, _ := os.ReadFile(outputFile)
 		prevOutput = string(data)
 
-		if stepNum == 2 {
+		if isIntakeStep(step, "source-document-analyst", "Source Document Cards") {
 			splitDocumentCards(string(data), cardDir)
 			knowledgeContext = buildKnowledgeContext(knowledgeDir)
 		}
-		if stepNum == 1 {
+		if isIntakeStep(step, "litigation-paralegal", "Document Intake and Registration") {
 			extractRegister(string(data), filepath.Join(knowledgeDir, "document_register.csv"))
 			knowledgeContext = buildKnowledgeContext(knowledgeDir)
 		}
@@ -235,6 +221,27 @@ func executeIntake(opts intakeOptions) error {
 	fmt.Println("  3. Run a workflow or draft review")
 
 	return summaryErr
+}
+
+func intakeOutputFileForStep(step config.PipelineStep, workingDir string, knowledgeDir string) string {
+	switch {
+	case isIntakeStep(step, "litigation-paralegal", "Document Intake and Registration"):
+		return filepath.Join(workingDir, "01-intake-mapping.md")
+	case isIntakeStep(step, "source-document-analyst", "Source Document Cards"):
+		return filepath.Join(workingDir, "02-document-cards.md")
+	case isIntakeStep(step, "chronology-clerk", "Chronology Construction"):
+		return filepath.Join(knowledgeDir, "case_timeline.md")
+	case isIntakeStep(step, "atomic-fact-extractor", "Atomic Fact Extraction"):
+		return filepath.Join(knowledgeDir, "fact_candidates.md")
+	case isIntakeStep(step, "attorney-prep-questioner", "Attorney Prep Questions"):
+		return filepath.Join(knowledgeDir, "open_questions_for_user.md")
+	default:
+		return filepath.Join(workingDir, fmt.Sprintf("%02d-%s.md", step.Step, step.Persona))
+	}
+}
+
+func isIntakeStep(step config.PipelineStep, persona string, name string) bool {
+	return step.Persona == persona && step.Name == name
 }
 
 // countTextFiles counts .txt and .md files in a directory
